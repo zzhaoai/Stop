@@ -9,6 +9,7 @@ public class FirstActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		System.out.println("test commit");
 		setContentView(R.layout.activity_first);
 	}
 
