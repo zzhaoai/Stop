@@ -1,7 +1,14 @@
 package com.example.stopforandroid;
 
+import java.util.ArrayList;
+
+import hk.ust.stop.dao.BaseDaoImpl;
+import hk.ust.stop.idao.BaseDaoInterface;
+import hk.ust.stop.model.GoodsInformation;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -12,8 +19,10 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.view.Menu;
+import android.widget.Toast;
 
 @SuppressLint("NewApi")
 public class FirstActivity extends Activity implements LocationListener{
@@ -36,6 +45,25 @@ public class FirstActivity extends Activity implements LocationListener{
 		googleMap = ((MapFragment) getFragmentManager().findFragmentById(
 				R.id.map)).getMap();
 		googleMap.setMyLocationEnabled(true);
+		
+		//insert a record to the database
+		ContentResolver resolver = getContentResolver();
+		BaseDaoInterface dao = new BaseDaoImpl(resolver);
+		GoodsInformation goods = new GoodsInformation(1,2,89.1,26.3,45.5,"book","worth to read");
+		dao.insert(1,goods,1);
+		
+		googleMap.setOnMapClickListener(new OnMapClickListener() {
+			
+			@Override
+			public void onMapClick(LatLng arg0) {
+				ContentResolver resolver = getContentResolver();
+				BaseDaoInterface dao = new BaseDaoImpl(resolver);
+				ArrayList<GoodsInformation> list = dao.queryAllRecord();
+				if(list != null && list.size() != 0) {
+					Toast.makeText(FirstActivity.this, list.get(0).getGoodsDescription(), Toast.LENGTH_LONG).show();
+				}
+			}
+		});
 	}
 
 	@Override
