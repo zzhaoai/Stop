@@ -21,6 +21,12 @@ public class GoodsInformation {
 		this.goodsDescription = desc;
 	}
 	
+	// this constructor is for test
+	public GoodsInformation(String name, double price){
+		this.goodsName = name;
+		this.price = price;
+	}
+	
 	public GoodsInformation() {
 		
 	}

@@ -1,4 +1,4 @@
-package com.example.stopforandroid;
+package hk.ust.stop.activity;
 
 import java.util.ArrayList;
 
@@ -17,34 +17,37 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.view.Menu;
 import android.widget.Toast;
 
-@SuppressLint("NewApi")
-public class FirstActivity extends Activity implements LocationListener{
+public class MainActivity extends Activity implements LocationListener{
 
+	// Class to do operations on the Map
 	GoogleMap googleMap;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		System.out.println("test commit!!!!!!");
-		setContentView(R.layout.activity_first);
 		
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+	
+		// setup location manager to perform location related operations
 		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
 		// Requesting locationmanager for location updates
-		locationManager.requestLocationUpdates(
-				LocationManager.NETWORK_PROVIDER, 1, 1, this);
+		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 1, 1, this);
 
 		// To get map from MapFragment from layout
-		googleMap = ((MapFragment) getFragmentManager().findFragmentById(
-				R.id.map)).getMap();
+		googleMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
+		
+		// To show our current location in the map with dot
 		googleMap.setMyLocationEnabled(true);
+		
+		// set map type
+		googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 		
 		//insert a record to the database
 		ContentResolver resolver = getContentResolver();
@@ -52,16 +55,19 @@ public class FirstActivity extends Activity implements LocationListener{
 		GoodsInformation goods = new GoodsInformation(1,2,89.1,26.3,45.5,"book","worth to read");
 		dao.insert(1,goods,1);
 		
+		// To listen action whenever we click on the map
 		googleMap.setOnMapClickListener(new OnMapClickListener() {
-			
+
 			@Override
 			public void onMapClick(LatLng arg0) {
+				
 				ContentResolver resolver = getContentResolver();
 				BaseDaoInterface dao = new BaseDaoImpl(resolver);
 				ArrayList<GoodsInformation> list = dao.queryAllRecord();
 				if(list != null && list.size() != 0) {
-					Toast.makeText(FirstActivity.this, list.get(0).getGoodsDescription(), Toast.LENGTH_LONG).show();
+					Toast.makeText(MainActivity.this, list.get(0).getGoodsDescription(), Toast.LENGTH_LONG).show();
 				}
+				
 			}
 		});
 	}
@@ -75,23 +81,24 @@ public class FirstActivity extends Activity implements LocationListener{
 
 	@Override
 	public void onLocationChanged(Location location) {
-		double latti = location.getLatitude();
-		double longi = location.getLongitude();
-
-		LatLng position = new LatLng(latti, longi);
+		
+		// To hold latitude and longitude values
+		LatLng position = new LatLng(location.getLatitude(), location.getLongitude());
 
 		// Creating object to pass our current location to the map
 		MarkerOptions markerOptions = new MarkerOptions();
 		// To store current location in the markeroptions object
-		markerOptions.position(position);
+		markerOptions.position(position).title("You are here");
 
+		// clear previous marker
+		googleMap.clear();
+		
 		// Zooming to our current location with zoom level 17.0f
-		googleMap.animateCamera(CameraUpdateFactory
-				.newLatLngZoom(position, 17f));
+		googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 17f));
 
-		// adding markeroptions class object to the map to show our current
-		// location in the map with help of default marker
+		// show our current location in the map with help of default marker
 		googleMap.addMarker(markerOptions);
+		
 	}
 
 	@Override

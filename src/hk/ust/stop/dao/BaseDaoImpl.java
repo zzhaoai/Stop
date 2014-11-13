@@ -1,7 +1,6 @@
 package hk.ust.stop.dao;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;

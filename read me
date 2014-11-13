@@ -1,0 +1,5 @@
+2014.10.28:
+version 1.0 - accomplish self-location function(two methods: one is current, the other is depleted)
+version 2.0 - combine content provider, SQLlite, and MyFavorListActivity with updating/loading animation
+2014.11.13
+version 2.1 - combine updating and loading function into one self-defined widget  
