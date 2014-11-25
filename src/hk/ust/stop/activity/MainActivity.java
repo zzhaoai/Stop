@@ -1,11 +1,40 @@
 package hk.ust.stop.activity;
 
-import java.util.ArrayList;
-
 import hk.ust.stop.dao.BaseDaoImpl;
 import hk.ust.stop.idao.BaseDaoInterface;
 import hk.ust.stop.model.GoodsInformation;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import android.app.ActionBar;
+import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.PopupWindow;
+import android.widget.SearchView;
+import android.widget.SearchView.OnQueryTextListener;
+import android.widget.SimpleAdapter;
+import android.widget.Toast;
+
+import com.google.android.gms.internal.el;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
@@ -13,24 +42,23 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Bundle;
-import android.app.Activity;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.view.Menu;
-import android.widget.Toast;
-
-public class MainActivity extends Activity implements LocationListener{
+public class MainActivity extends Activity 
+				implements LocationListener, OnClickListener,
+				OnQueryTextListener, OnItemClickListener {
 
 	// Class to do operations on the Map
 	GoogleMap googleMap;
+	ImageView overflowButton;
+	SearchView searchView;
+	PopupWindow popupWindow;
+	boolean isMenuPressToShow = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		
+		Intent intent = getIntent();
+		boolean isLogin = intent.getBooleanExtra("isLogin", false);
+		initActionBar();
+		initPopupWindow(isLogin);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 	
@@ -44,7 +72,7 @@ public class MainActivity extends Activity implements LocationListener{
 		googleMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 		
 		// To show our current location in the map with dot
-		googleMap.setMyLocationEnabled(true);
+		googleMap.setMyLocationEnabled(false);
 		
 		// set map type
 		googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
@@ -71,11 +99,83 @@ public class MainActivity extends Activity implements LocationListener{
 			}
 		});
 	}
+	
+	private void initActionBar() {
+		ActionBar actionBar = getActionBar();
+		actionBar.setCustomView(R.layout.actionbar_with_searchview_layout);
+		actionBar.setDisplayShowCustomEnabled(true);
+		actionBar.setDisplayShowHomeEnabled(false);
+		actionBar.setTitle("");
+		
+		searchView = (SearchView)findViewById(R.id.actionbar_searchview);
+		searchView.setOnQueryTextListener(this);
+		overflowButton = (ImageView) findViewById(R.id.iv_overflow);
+		overflowButton.setOnClickListener(this);
+	}
+	
+	private void initPopupWindow(boolean isLogin) {
+		View contentView = LayoutInflater.from(this).inflate(
+				R.layout.popup_menu_layout, null);
+		
+		ArrayList<HashMap<String, Object>> menuList = new ArrayList<HashMap<String, Object>>(); 
+		HashMap<String, Object> map1 = new HashMap<String, Object>();
+		map1.put("menu_list_image", R.drawable.ic_action_search);
+		map1.put("menu_list_text", "MyAdded");
+		
+		HashMap<String, Object> map2 = new HashMap<String, Object>();
+		map2.put("menu_list_image", R.drawable.ic_action_search);
+		map2.put("menu_list_text", "MyUploaded");
+		
+		HashMap<String, Object> map3 = new HashMap<String, Object>();
+		map3.put("menu_list_image", R.drawable.ic_action_overflow);
+		if(isLogin) {
+			map3.put("menu_list_text", "Log Out");
+		} else {
+			map3.put("menu_list_text", "Log In");
+		}
+		menuList.add(map1);
+		menuList.add(map2);
+		menuList.add(map3);
+		
+		SimpleAdapter adapter = new SimpleAdapter(this, menuList, 
+				R.layout.menu_listview_layout, 
+				new String[]{"menu_list_image", "menu_list_text"}, 
+				new int[]{R.id.menu_list_image, R.id.menu_list_text});
+		
+		ListView listView = (ListView)contentView.findViewById(R.id.menu_listview);
+		listView.setAdapter(adapter);
+		listView.setOnKeyListener(new ListView.OnKeyListener() {
+			
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				if(event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
+					if(isMenuPressToShow) {
+						isMenuPressToShow = false;
+					} else {
+						popupWindow.dismiss();
+						isMenuPressToShow = true;
+					}
+					return true;
+				}
+				return false;
+			}
+		});
+		listView.setOnItemClickListener(this);
+		
+		popupWindow = new PopupWindow(contentView,
+                LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true);
+		popupWindow.setTouchable(true);
+		popupWindow.setBackgroundDrawable(getResources().getDrawable(
+                R.color.wallet_hint_foreground_holo_light));
+		popupWindow.setWidth(LayoutParams.WRAP_CONTENT);    
+		popupWindow.setHeight(LayoutParams.WRAP_CONTENT);
+		popupWindow.setOutsideTouchable(true);
+		
+	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.first, menu);
+		
 		return true;
 	}
 
@@ -119,4 +219,80 @@ public class MainActivity extends Activity implements LocationListener{
 		
 	}
 
+	@Override
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.iv_overflow:
+			togglePopupWindow();
+			break;
+
+		default:
+			break;
+		}
+	}
+
+	@Override
+	public boolean onQueryTextSubmit(String query) {
+		Toast.makeText(this, searchView.getQuery(), Toast.LENGTH_LONG).show();
+		return true;
+	}
+
+	@Override
+	public boolean onQueryTextChange(String newText) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
+	private void togglePopupWindow() {
+		if(!popupWindow.isShowing()) {
+			int x = popupWindow.getWidth();
+			popupWindow.showAsDropDown(overflowButton, -x-180, 20);
+		} else {
+			popupWindow.dismiss();
+		}
+		
+		
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		System.out.println("****press");
+		if (keyCode == KeyEvent.KEYCODE_MENU) { 
+			isMenuPressToShow = true;
+			togglePopupWindow();
+			return true;
+		}   
+		return super.onKeyDown(keyCode, event);
+	}
+
+	@Override
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_MENU) { 
+			return true;
+		}
+		return super.onKeyUp(keyCode, event);
+	}
+
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		switch (position) {
+		case 0:
+			
+			break;
+		case 1:
+			break;
+		case 2:
+			Intent intent = new Intent();
+			intent.setClass(this, LoginActivity.class);
+			startActivity(intent);
+			finish();
+
+		default:
+			break;
+		}
+		
+	}
+
+	
 }
