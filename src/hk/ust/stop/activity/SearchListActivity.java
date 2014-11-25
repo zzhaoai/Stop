@@ -12,6 +12,7 @@ import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -34,7 +35,7 @@ public final static String GOODSINFO_KEY = "hk.ust.stop.activity.SearchListActiv
 	// record the first cursor of listView for data, currentNum X times the number of batchSize
 	private int currentNum = 0;
 	// max records shown on one page
-	private int batchSize = 16;
+	private int batchSize = 10;
 	
 	private List<GoodsInformation> serverData;
 	private List<GoodsInformation> adapterData; // model
@@ -96,10 +97,14 @@ public final static String GOODSINFO_KEY = "hk.ust.stop.activity.SearchListActiv
 		handler = new Handler() {
 			@SuppressWarnings("unchecked")
 			public void handleMessage(Message msg) {
-				Bundle bundle = msg.getData();
-				List<GoodsInformation> goodsItems = (List<GoodsInformation>) bundle.getSerializable(GOODSINFO_KEY);
-				serverData = goodsItems;
-				initAdapter();
+				if(msg.what == 1){
+					Bundle bundle = msg.getData();
+					List<GoodsInformation> goodsItems = (List<GoodsInformation>) bundle.getSerializable(GOODSINFO_KEY);
+					serverData = goodsItems;
+					initAdapter();
+				}else{
+					
+				}
 			}
 		};
 	}
@@ -113,6 +118,7 @@ public final static String GOODSINFO_KEY = "hk.ust.stop.activity.SearchListActiv
 				@Override
 				public void run() {
 					
+					
 					/*String staticUrl = UrlConstant.DISHINFO_URL;
 					String responseData = ConnectionUtil.getFromServer(staticUrl);
 					List<GoodsItem> dishInfos = Transfer2JsonUtil.dishInfoJsonTransfer(responseData);*/
@@ -122,12 +128,14 @@ public final static String GOODSINFO_KEY = "hk.ust.stop.activity.SearchListActiv
 					for (int i = 0; i < 40; i++) {
 						goodsItems.add(new GoodsInformation("name"+i,i));
 					}
+					
 						
 
 					Message message=new Message();
 					Bundle bundle = new Bundle();
 					bundle.putSerializable(GOODSINFO_KEY, (Serializable) goodsItems);
 					message.setData(bundle);
+					message.what = 1;
 					handler.sendMessage(message);
 					
 				}
@@ -223,7 +231,15 @@ public final static String GOODSINFO_KEY = "hk.ust.stop.activity.SearchListActiv
 	
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position,	long id) {
-		// to do
+
+		Object itemObject = listView.getItemAtPosition(position);
+		Bundle bundle = new Bundle();
+		bundle.putSerializable(GOODSINFO_KEY, (Serializable) itemObject);
+		Intent intent = new Intent();
+		intent.setClass(this, GoodsInfoActivity.class);
+		intent.putExtras(bundle);
+		intent.putExtra("SerializableKey", GOODSINFO_KEY);
+		startActivity(intent);
 		
 	}
 	
@@ -242,30 +258,18 @@ public final static String GOODSINFO_KEY = "hk.ust.stop.activity.SearchListActiv
 				handler.post(new Runnable() {
 					@Override
 					public void run() {
-						/*
+						
+						adapterData.clear();
+						adapterData = new ArrayList<GoodsInformation>();
+						serverData.clear();
 						// clear signalNum and adaterData
 						currentNum = 0;
-						adapterData.clear();
+						// notice to remove previous header before initial adapter again
+						listView.removeHeaderView(header);
 						// get data from server again for updating
 						getDataFromServer();
 						adapter.notifyDataSetChanged();
-					    */
-						
-						adapterData.clear();
-						adapter = new SearchListAdapter();
-						adapter.setContext(getApplicationContext());
-						
-						List<GoodsInformation> goodsItems = new ArrayList<GoodsInformation>();
-						for (int i = 0; i < 16; i++) {
-							goodsItems.add(new GoodsInformation("name"+10*i,10*i));
-						}
-						for (GoodsInformation goodsItem : goodsItems) {
-							adapterData.add(goodsItem);
-						}
-						adapter.setData(adapterData);
-						currentNum = 16;
-						adapter.notifyDataSetChanged();
-
+					    
 					}
 				});
 

@@ -1,7 +1,11 @@
 package hk.ust.stop.model;
 
-public class GoodsInformation {
+import java.io.Serializable;
+
+public class GoodsInformation implements Serializable{
 	
+	private static final long serialVersionUID = 1L;
+
 	private long 	goodsId;
 	private long 	pictureId;
 	private double	longitude;
@@ -9,6 +13,7 @@ public class GoodsInformation {
 	private double	price;
 	private String	goodsName;
 	private String  goodsDescription;
+	private boolean selected;
 	
 	public GoodsInformation(long goodsId, long pictureId, double longitude,
 			double latitude, double price, String name, String desc) {
@@ -72,6 +77,12 @@ public class GoodsInformation {
 	}
 	public void setGoodsDescription(String goodsDescription) {
 		this.goodsDescription = goodsDescription;
+	}
+	public boolean isSelected() {
+		return selected;
+	}
+	public void setSelected(boolean selected) {
+		this.selected = selected;
 	}
 	
 }

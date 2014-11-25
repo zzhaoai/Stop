@@ -16,7 +16,7 @@
     </TextView>
 
     <TextView
-        android:id="@+id/goodPrice"
+        android:id="@+id/goodsPrice"
         android:layout_width="60dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
@@ -36,6 +36,16 @@
         android:gravity="center"
         android:text="Place" >
     </TextView>
+    
+    <CheckBox
+	    android:id="@+id/goodsSelect"
+	    android:focusable="false"
+	    android:focusableInTouchMode="false"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="8dp" /> 
 
 
 </LinearLayout>

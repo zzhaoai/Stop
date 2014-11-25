@@ -8,7 +8,8 @@
     <hk.ust.stop.widget.RefreshableView
         android:id="@+id/refreshable_view"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
+        android:layout_height="fill_parent"
+        android:layout_above="@+id/bottomView" >
 
         <ListView
             android:id="@+id/android:list"
@@ -18,5 +19,32 @@
         </ListView>
         
     </hk.ust.stop.widget.RefreshableView>
+    
+    <LinearLayout
+        android:id="@+id/bottomView"
+        android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:orientation="horizontal" >
+        
+	    <Button
+	        android:layout_width="80dp"
+	        android:layout_height="40dp"
+	        android:gravity="center"
+	        android:text="save"
+	        android:textSize="16sp" >
+	    </Button>
+	    
+	    <Button
+	        android:layout_width="150dp"
+	        android:layout_height="40dp"
+	        android:layout_marginLeft="30dp"
+	        android:gravity="center"
+	        android:text="show on map"
+	        android:textSize="16sp" >
+	    </Button>
+	    
+    </LinearLayout>
 
 </RelativeLayout>
