@@ -81,7 +81,7 @@ public class MainActivity extends Activity
 		ContentResolver resolver = getContentResolver();
 		BaseDaoInterface dao = new BaseDaoImpl(resolver);
 		GoodsInformation goods = new GoodsInformation(1,2,89.1,26.3,45.5,"book","worth to read");
-		dao.insert(1,goods,1);
+		dao.insert(null,goods,1);
 		
 		// To listen action whenever we click on the map
 		googleMap.setOnMapClickListener(new OnMapClickListener() {
@@ -91,7 +91,7 @@ public class MainActivity extends Activity
 				
 				ContentResolver resolver = getContentResolver();
 				BaseDaoInterface dao = new BaseDaoImpl(resolver);
-				ArrayList<GoodsInformation> list = dao.queryAllRecord();
+				ArrayList<GoodsInformation> list = dao.queryAllRecord(null,1);
 				if(list != null && list.size() != 0) {
 					Toast.makeText(MainActivity.this, list.get(0).getGoodsDescription(), Toast.LENGTH_LONG).show();
 				}

@@ -3,11 +3,19 @@ package hk.ust.stop.dao;
 import android.net.Uri;
 import android.provider.BaseColumns;
 
+/**
+ * Some constants for content provider
+ * @author XJR
+ *
+ */
 public class GoodsInfoProviderMetaData {
 
 	public final static String databaseName = "StopDatabase.db";
 	public final static String AUTHORITY = "hk.ust.stop.dao.goodsinfoprovider";
 	public final static String TABLE_NAME = "GOODS_INFO";
+	public final static long DEFAULT_USER = 0;
+	public final static int UPLOADED_PRODUCT = 0;
+	public final static int PURCHASED_PRODUCT = 1;
 	
 	public final static class TableMetaData implements BaseColumns {
 		public final static Uri CONTENT_URI = Uri.parse("content://"+AUTHORITY+"/myinfo");

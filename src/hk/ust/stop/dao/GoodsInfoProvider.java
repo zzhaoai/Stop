@@ -48,6 +48,7 @@ public class GoodsInfoProvider extends ContentProvider{
 	
 	@Override
 	public boolean onCreate() {
+		//get database object to operate database
 		Context context = getContext();
 		StopDatabaseHelper dbHelper = new StopDatabaseHelper(context, GoodsInfoProviderMetaData.databaseName);
 		db = dbHelper.getReadableDatabase();
@@ -58,15 +59,10 @@ public class GoodsInfoProvider extends ContentProvider{
 	public Cursor query(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder) {
 		SQLiteQueryBuilder builder = new SQLiteQueryBuilder();
-		switch (uriMatcher.match(uri)) {
-		case MY_INFO:
-			builder.setTables(TableMetaData.TABLE_NAME);
-			builder.setProjectionMap(userProjectionMap);
-			break;
-
-		default:
-			break;
-		}
+		builder.setTables(TableMetaData.TABLE_NAME);
+		builder.setProjectionMap(userProjectionMap);
+		
+		//decide the order in the result
 		String orderBy;
 		if(TextUtils.isEmpty(sortOrder)) {
 			orderBy = TableMetaData.DEFAULT_SORT_ORDER;
@@ -74,8 +70,30 @@ public class GoodsInfoProvider extends ContentProvider{
 			orderBy = sortOrder;
 		}
 		
-		Cursor cursor = builder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
-		cursor.setNotificationUri(getContext().getContentResolver(), uri);
+		//decide to query a single record or a record set
+		Cursor cursor;
+		switch (uriMatcher.match(uri)) {
+		case MY_INFO:
+			// query database use specific selection, 
+			// and create the result set cursor
+			cursor = builder.query(db, projection, 
+					selection, selectionArgs, null, null, orderBy);
+			break;
+		case MY_INFO_SINGLE:
+			// return a single record
+			String id = uri.getPathSegments().get(1);
+			cursor = builder.query(db, projection,
+					"_id = ? ", new String[]{id}, null, null, orderBy);
+			break;
+		default:
+			cursor = builder.query(db, projection, 
+					selection, selectionArgs, null, null, orderBy);
+			break;
+		}
+		
+		if(null != cursor) {
+			cursor.setNotificationUri(getContext().getContentResolver(), uri);
+		}
 		return cursor;
 	}
 
@@ -101,15 +119,33 @@ public class GoodsInfoProvider extends ContentProvider{
 
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
-		// TODO Auto-generated method stub
-		return 0;
+		String id = uri.getPathSegments().get(1);
+
+		//if the id is not empty, then we delete the record according to id
+		if(!TextUtils.isEmpty(id)) {
+			String []whereArgs = new String[1 + selectionArgs.length];
+			for(int i = 0; i < selectionArgs.length; i++) {
+				whereArgs[i] = selectionArgs[i];
+			}
+			
+			whereArgs[whereArgs.length-1] = id;
+			String whereClause = (TextUtils.isEmpty(selection)?" id = ?":"and id = ?");
+			
+			return db.delete(GoodsInfoProviderMetaData.TABLE_NAME, 
+					whereClause, whereArgs);
+		} else {
+			return db.delete(GoodsInfoProviderMetaData.TABLE_NAME, 
+					selection, selectionArgs);
+		}
 	}
 
 	@Override
 	public int update(Uri uri, ContentValues values, String selection,
 			String[] selectionArgs) {
-		// TODO Auto-generated method stub
-		return 0;
+
+		int result = db.update(GoodsInfoProviderMetaData.TABLE_NAME, 
+				values, selection, selectionArgs);
+		return result;
 	}
 
 }
