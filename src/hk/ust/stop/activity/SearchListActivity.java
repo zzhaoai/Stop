@@ -1,7 +1,8 @@
 package hk.ust.stop.activity;
 
-import hk.ust.stop.adapter.SearchListAdapter;
+import hk.ust.stop.adapter.CommonListAdapter;
 import hk.ust.stop.model.GoodsInformation;
+import hk.ust.stop.util.ToastUtil;
 import hk.ust.stop.widget.RefreshableView;
 import hk.ust.stop.widget.RefreshableView.PullToLoadMoreListener;
 import hk.ust.stop.widget.RefreshableView.PullToRefreshListener;
@@ -19,15 +20,17 @@ import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
+import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class SearchListActivity extends ListActivity implements OnItemClickListener{
 
-public final static String GOODSINFO_KEY = "hk.ust.stop.activity.SearchListActivity";
+	public final static String GOODSINFO_KEY = "hk.ust.stop.activity.SearchListActivity";
 
 	private View header;
+	private CheckBox checkBox;
 	
 	private Handler handler;
 	private Thread currentThread;
@@ -37,11 +40,12 @@ public final static String GOODSINFO_KEY = "hk.ust.stop.activity.SearchListActiv
 	// max records shown on one page
 	private int batchSize = 10;
 	
+	private List<GoodsInformation> selectedData;
 	private List<GoodsInformation> serverData;
 	private List<GoodsInformation> adapterData; // model
 	private RefreshableView refreshableView; // widget view
 	private ListView listView; // sub view 
-	private SearchListAdapter adapter; // controller
+	private CommonListAdapter adapter; // controller
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
@@ -58,6 +62,7 @@ public final static String GOODSINFO_KEY = "hk.ust.stop.activity.SearchListActiv
 		
 		serverData = new ArrayList<GoodsInformation>();
 		adapterData = new ArrayList<GoodsInformation>();
+		selectedData = new ArrayList<GoodsInformation>();
 		
 	}
 	
@@ -72,7 +77,8 @@ public final static String GOODSINFO_KEY = "hk.ust.stop.activity.SearchListActiv
 		listView = getListView(); // the way getting listView in ListActivity
 		
 		LayoutInflater inflater = getLayoutInflater();
-		header = (View)inflater.inflate(R.layout.goodsinfo_list_header, listView, false);
+		header = (View)inflater.inflate(R.layout.common_list_header, listView, false);
+		checkBox = (CheckBox) header.findViewById(R.id.fullSelect);
 		
 	}
 	
@@ -83,7 +89,7 @@ public final static String GOODSINFO_KEY = "hk.ust.stop.activity.SearchListActiv
 		
 		listView.setOnItemClickListener(this);
 		// set pull-down-refresh listener in self-defined widget
-		refreshableView.setOnRefreshListener(new MyPullToRefreshListener(), 0);
+		refreshableView.setOnRefreshListener(new MyPullToRefreshListener(), 1);
 		// set pull-up-load listener in self-defined widget
 		refreshableView.setOnLoadListener(new MyPullToLoadMoreListener());
 		
@@ -97,13 +103,22 @@ public final static String GOODSINFO_KEY = "hk.ust.stop.activity.SearchListActiv
 		handler = new Handler() {
 			@SuppressWarnings("unchecked")
 			public void handleMessage(Message msg) {
-				if(msg.what == 1){
-					Bundle bundle = msg.getData();
+				Bundle bundle = msg.getData();
+				switch (msg.what) {
+				case 1:
+					// get data successfully
 					List<GoodsInformation> goodsItems = (List<GoodsInformation>) bundle.getSerializable(GOODSINFO_KEY);
 					serverData = goodsItems;
 					initAdapter();
-				}else{
-					
+					ToastUtil.showToast(getApplicationContext(), "get data successfully");
+					break;
+				case 2:
+					// get data unsuccessfully
+					ToastUtil.showToast(getApplicationContext(), "fail to get data");
+					break;
+				default:
+					ToastUtil.showToast(getApplicationContext(), "logic error");
+					break;
 				}
 			}
 		};
@@ -156,13 +171,17 @@ public final static String GOODSINFO_KEY = "hk.ust.stop.activity.SearchListActiv
 		
 		batchServerData();
 		
-		adapter = new SearchListAdapter();
+		adapter = new CommonListAdapter();
 		adapter.setContext(this);
 		adapter.setData(adapterData);
+		adapter.setFullChecked(false);
+		// restore checkBox to default state
+		checkBox.setChecked(false);
 
 		// addHeaderView or addFooterView has to be called before setAdapter
 		listView.addHeaderView(header, "header", false);
 		listView.setAdapter(adapter);
+		
 		
 	}
 	
@@ -303,6 +322,77 @@ public final static String GOODSINFO_KEY = "hk.ust.stop.activity.SearchListActiv
 				// change loadStatus when not loading
 				refreshableView.finishLoading();
 			}
+		}
+		
+	}
+	
+	/**
+	 * set selectedData according to selected items in adapterData 
+	 * @return number of chosen items
+	 */
+	private String setSelectedData(){
+		
+		String chosenNum = "";
+		for(int i=0; i<adapterData.size() ;i++){
+			GoodsInformation singleData = adapterData.get(i);
+			if(singleData.getSelected()){
+				String temp = i+" ";
+				chosenNum += temp;
+				selectedData.add(singleData);
+			}
+		}
+		return chosenNum;
+		
+	}
+	
+	/**
+	 * bind onClickListener for saveList Button 
+	 * @param view
+	 */
+	public void saveListOnClickListener(View view){
+		
+		// save selected items to local database like contentProvider
+		String nums = setSelectedData();
+		
+		// test
+		ToastUtil.showToast(this, nums);
+		
+	}
+	
+	/**
+	 * bind onClickListener for showOnMap Button
+	 * @param view
+	 */
+	public void showOnMapOnClickListener(View view){
+		
+		// upload selected items to server and get optimized route
+		String nums = setSelectedData();
+		
+		// test
+		ToastUtil.showToast(this, nums);
+		
+	}
+	
+	/**
+	 * bind onClickListener for checkBox
+	 * set full-checked state
+	 */
+	public void onCheckboxClicked(View view){
+
+		if(checkBox.isChecked()){
+			ToastUtil.showToast(this, checkBox.isChecked()+"");
+			for(GoodsInformation singleData : adapterData){
+				singleData.setSelected(true);
+			}
+			adapter.setFullChecked(true);
+			adapter.notifyDataSetChanged();
+		}else{
+			ToastUtil.showToast(this, checkBox.isChecked()+"");
+			for(GoodsInformation singleData : adapterData){
+				singleData.setSelected(false);
+			}
+			adapter.setFullChecked(false);
+			adapter.notifyDataSetChanged();
 		}
 		
 	}

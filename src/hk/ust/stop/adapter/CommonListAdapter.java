@@ -16,7 +16,7 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 
-public class SearchListAdapter extends BaseAdapter {
+public class CommonListAdapter extends BaseAdapter {
 
 	// data source
 	private List<GoodsInformation> data;
@@ -25,6 +25,9 @@ public class SearchListAdapter extends BaseAdapter {
 
 	// view-holder model
 	private ViewHolder holder;
+	
+	// if all items are chosen
+	private boolean isFullChecked;
 	
 	public List<GoodsInformation> getData() {
 		return data;
@@ -40,6 +43,14 @@ public class SearchListAdapter extends BaseAdapter {
 
 	public void setContext(Context context) {
 		this.context = context;
+	}
+	
+	public boolean getFullChecked() {
+		return isFullChecked;
+	}
+
+	public void setFullChecked(boolean isFullChecked) {
+		this.isFullChecked = isFullChecked;
 	}
 
 	/**
@@ -73,7 +84,7 @@ public class SearchListAdapter extends BaseAdapter {
 	 */
 	@SuppressLint("InflateParams")
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public View getView(int position, View convertView, final ViewGroup parent) {
 
 		if (convertView == null) {
 			// get context from Activity
@@ -94,6 +105,13 @@ public class SearchListAdapter extends BaseAdapter {
 					int position = (Integer) buttonView.getTag();
 					// save state of checkBox in data list
 					data.get(position).setSelected(isChecked);
+					
+					// if an item is unchecked, then set header checkBox to false at the same time
+					if(isFullChecked && !(data.get(position).getSelected()) ){
+						CheckBox checkBox = (CheckBox) parent.findViewById(R.id.fullSelect);
+						checkBox.setChecked(false);
+					}
+					
 				}
 			});
 			
@@ -108,12 +126,15 @@ public class SearchListAdapter extends BaseAdapter {
 		holder.goodsNameTextView.setText(data.get(position).getGoodsName());
 		holder.goodsPriceTextView.setText(data.get(position).getPrice() + "");
 		// get state of checkBox in data list
-		holder.goodsSelectCheckBox.setChecked(data.get(position).isSelected());
-
+		holder.goodsSelectCheckBox.setChecked(data.get(position).getSelected());
+		
 		return convertView;
 
 	}
 	
+	/**
+	 * observer pattern
+	 */
 	static class ViewHolder {
 		TextView goodsNameTextView;
 		TextView goodsPriceTextView;

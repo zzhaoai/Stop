@@ -29,20 +29,24 @@
         android:orientation="horizontal" >
         
 	    <Button
+	        android:id="@+id/saveList"
 	        android:layout_width="80dp"
 	        android:layout_height="40dp"
 	        android:gravity="center"
-	        android:text="save"
-	        android:textSize="16sp" >
+	        android:text="@string/save"
+	        android:textSize="16sp"
+	        android:onClick="saveListOnClickListener" >
 	    </Button>
 	    
 	    <Button
+	        android:id="@+id/showOnMap"
 	        android:layout_width="150dp"
 	        android:layout_height="40dp"
 	        android:layout_marginLeft="30dp"
 	        android:gravity="center"
-	        android:text="show on map"
-	        android:textSize="16sp" >
+	        android:text="@string/showOnMap"
+	        android:textSize="16sp"
+	        android:onClick="showOnMapOnClickListener" >
 	    </Button>
 	    
     </LinearLayout>

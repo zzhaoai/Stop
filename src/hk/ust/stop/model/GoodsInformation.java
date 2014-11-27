@@ -78,7 +78,7 @@ public class GoodsInformation implements Serializable{
 	public void setGoodsDescription(String goodsDescription) {
 		this.goodsDescription = goodsDescription;
 	}
-	public boolean isSelected() {
+	public boolean getSelected() {
 		return selected;
 	}
 	public void setSelected(boolean selected) {
