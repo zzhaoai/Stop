@@ -25,30 +25,32 @@ import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class AddedGoodsListActivity extends ListActivity implements OnItemClickListener{
+public class FavoriteGoodsListActivity extends ListActivity implements OnItemClickListener {
 
-	public final static String GOODSINFO_KEY = "hk.ust.stop.activity.AddedGoodsListActivity";
+	public final static String GOODSINFO_KEY = "hk.ust.stop.activity.FavoriteGoodsListActivity";
 
 	private View header;
 	private CheckBox checkBox;
-	
+
 	private Handler handler;
 	private Thread currentThread;
-	
-	// record the first cursor of listView for data, currentNum X times the number of batchSize
+
+	// record the first cursor of listView for data, currentNum X times the
+	// number of batchSize
 	private int currentNum = 0;
 	// max records shown on one page
 	private int batchSize = 10;
-	
+
 	private List<GoodsInformation> selectedData;
-	private List<GoodsInformation> serverData;
+	private List<GoodsInformation> localData;
 	private List<GoodsInformation> adapterData; // model
 	private RefreshableView refreshableView; // widget view
-	private ListView listView; // sub view 
+	private ListView listView; // sub view
 	private CommonListAdapter adapter; // controller
-	
+
 	@Override
-	public void onCreate(Bundle savedInstanceState){
+	protected void onCreate(Bundle savedInstanceState) {
+
 		super.onCreate(savedInstanceState);
 
 		// initial GUI
@@ -58,48 +60,48 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 		// initial Handler and ListView
 		initHandler();
 		// get data from server
-		getDataFromServer();
-		
-		serverData = new ArrayList<GoodsInformation>();
+		getDataFromLocal();
+
+		localData = new ArrayList<GoodsInformation>();
 		adapterData = new ArrayList<GoodsInformation>();
 		selectedData = new ArrayList<GoodsInformation>();
-		
+
 	}
-	
+
 	/**
 	 * initial GUI
 	 */
-	private void initView(){
-		
+	private void initView() {
+
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.activity_addedgoodslist);
-		refreshableView = (RefreshableView) findViewById(R.id.refreshable_view_addedgoodslist);
+		setContentView(R.layout.activity_favoritegoodslist);
+		refreshableView = (RefreshableView) findViewById(R.id.refreshable_view_favoritegoodslist);
 		listView = getListView(); // the way getting listView in ListActivity
-		
+
 		LayoutInflater inflater = getLayoutInflater();
-		header = (View)inflater.inflate(R.layout.common_list_header, listView, false);
+		header = (View) inflater.inflate(R.layout.common_list_header, listView,	false);
 		checkBox = (CheckBox) header.findViewById(R.id.fullSelect);
-		
+
 	}
-	
+
 	/**
 	 * bind events (scroll event and itemClick event)
 	 */
-	private void initEvent(){
-		
+	private void initEvent() {
+
 		listView.setOnItemClickListener(this);
 		// set pull-down-refresh listener in self-defined widget
 		refreshableView.setOnRefreshListener(new MyPullToRefreshListener(), 0);
 		// set pull-up-load listener in self-defined widget
 		refreshableView.setOnLoadListener(new MyPullToLoadMoreListener());
-		
+
 	}
-	
+
 	/**
 	 * initial Handler, set data, and initial adapter
 	 */
 	@SuppressLint("HandlerLeak")
-	private void initHandler(){
+	private void initHandler() {
 		handler = new Handler() {
 			@SuppressWarnings("unchecked")
 			public void handleMessage(Message msg) {
@@ -108,7 +110,7 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 				case 1:
 					// get data successfully
 					List<GoodsInformation> goodsItems = (List<GoodsInformation>) bundle.getSerializable(GOODSINFO_KEY);
-					serverData = goodsItems;
+					localData = goodsItems;
 					initAdapter();
 					ToastUtil.showToast(getApplicationContext(), "get data successfully");
 					break;
@@ -119,7 +121,7 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 				case 3:
 					// delete successfully
 					int[] deleteNums = bundle.getIntArray("deleteNums");
-					for (int j=deleteNums.length-1; j>=0; j--) {
+					for (int j = deleteNums.length - 1; j >= 0; j--) {
 						int reverseNum = deleteNums[j];
 						adapterData.remove(reverseNum);
 						adapter.notifyDataSetChanged();
@@ -138,93 +140,92 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 			}
 		};
 	}
-	
-	/**
-	 *  get data from server
-	 */
-	private void getDataFromServer(){
-		
-		 new Thread(new Runnable() {
-				@Override
-				public void run() {
-					
-					
-					/*String staticUrl = UrlConstant.DISHINFO_URL;
-					String responseData = ConnectionUtil.getFromServer(staticUrl);
-					List<GoodsItem> dishInfos = Transfer2JsonUtil.dishInfoJsonTransfer(responseData);*/
-					
-					List<GoodsInformation> goodsItems = new ArrayList<GoodsInformation>();
-					
-					for (int i = 0; i < 40; i++) {
-						goodsItems.add(new GoodsInformation("name"+i,i));
-					}
-					
-						
 
-					Message message=new Message();
-					Bundle bundle = new Bundle();
-					bundle.putSerializable(GOODSINFO_KEY, (Serializable) goodsItems);
-					message.setData(bundle);
-					message.what = 1;
-					handler.sendMessage(message);
-					
-				}
-		}).start();
-		
-	}
-	
 	/**
-	 *  inform server to delete data
+	 * get data from local database
 	 */
-	private void deleteDataOnServer(final String nums){
-		
-		 new Thread(new Runnable() {
-				@Override
-				public void run() {
-					
-					
-					/*
-					// getUserId before communicating with server
-					SharedPreferences preferences = getSharedPreferences("userInfo", 0);
-					int userId = preferences.getInt("userId", 123);
-					
-					String staticUrl = UrlConstant.DISHINFO_URL;
-					String responseData = ConnectionUtil.post2Server(staticUrl, sendJsonMsg);
-					
-					// if delete successfully according to responseData : Toast("successfully"); else : Toast("failed")
-					*/
-					
-					String[] temp = nums.split(" ");
-					int[] deleteNums = new int[temp.length]; 
-					for(int i=0;i<temp.length;i++){
-						deleteNums[i] = Integer.parseInt(temp[i]);
-					}
-					
-					Message message=new Message();
-					Bundle bundle = new Bundle();
-					bundle.putIntArray("deleteNums", deleteNums);
-					message.setData(bundle);
-					message.what = 3;
-					handler.sendMessage(message);
-					
+	private void getDataFromLocal() {
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+
+				/*
+				 *  get data from content provider (local database)
+				 *  
+				 *  
+				 *  
+				 */
+
+				
+				// just for test
+				List<GoodsInformation> goodsItems = new ArrayList<GoodsInformation>();
+
+				for (int i = 0; i < 40; i++) {
+					goodsItems.add(new GoodsInformation("name" + i, i));
 				}
+
+				Message message = new Message();
+				Bundle bundle = new Bundle();
+				bundle.putSerializable(GOODSINFO_KEY, (Serializable) goodsItems);
+				message.setData(bundle);
+				message.what = 1;
+				handler.sendMessage(message);
+
+			}
 		}).start();
-		
+
 	}
-	
+
 	/**
-	 *  initial adapter
-	 *  first step: get part of data (model)
-	 *  second step: build a new adapter and initial it (controller)
-	 *  third step: set adapter for ListView (view)
+	 * delete data in local database
+	 */
+	private void deleteDataInLocal(final String nums) {
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+
+				/*
+				 * // delete data in content provider (local database)
+				 * 
+				 * 
+				 * 
+				 * 
+				 * 
+				 * // if delete successfully according to responseData :
+				 * Toast("successfully"); else : Toast("failed")
+				 */
+
+				String[] temp = nums.split(" ");
+				int[] deleteNums = new int[temp.length];
+				for (int i = 0; i < temp.length; i++) {
+					deleteNums[i] = Integer.parseInt(temp[i]);
+				}
+
+				Message message = new Message();
+				Bundle bundle = new Bundle();
+				bundle.putIntArray("deleteNums", deleteNums);
+				message.setData(bundle);
+				message.what = 3;
+				handler.sendMessage(message);
+
+			}
+		}).start();
+
+	}
+
+	/**
+	 * initial adapter first step: get part of data (model) second step: 
+	 * build a new adapter and initial it (controller) third step: set adapter for ListView (view)
 	 */
 	private void initAdapter() {
-	
+
 		if (listView == null)
 			return;
-		
-		batchServerData();
-		
+
+		batchLocalData();
+
 		adapter = new CommonListAdapter();
 		adapter.setContext(this);
 		adapter.setData(adapterData);
@@ -235,18 +236,18 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 		// addHeaderView or addFooterView has to be called before setAdapter
 		listView.addHeaderView(header, "header", false);
 		listView.setAdapter(adapter);
-		
+
 	}
-	
+
 	/**
-	 *  handle ServerData, set adapterData with serverData of batchSize each time
+	 * handle LocalData, set adapterData with localData of batchSize each time
 	 */
- 	private void batchServerData() {
-		
-		if (serverData == null)
+	private void batchLocalData() {
+
+		if (localData == null)
 			return;
 
-		int totalSize = serverData.size();
+		int totalSize = localData.size();
 
 		// stop condition
 		if (currentNum == totalSize)
@@ -255,21 +256,22 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 		int showSize;
 		int result = currentNum + batchSize - totalSize;
 		// result<=0 indicates the number of dishes next time is batchSize
-		if(result<=0){
+		if (result <= 0) {
 			showSize = batchSize;
-		}else{
-			// result>0 indicates the number of dishes next time is less than batchSize
+		} else {
+			// result>0 indicates the number of dishes next time is less than
+			// batchSize
 			showSize = totalSize - currentNum;
 		}
-		
-		for(int i=0;i<showSize;i++){
-			adapterData.add( serverData.get(currentNum+i) );
+
+		for (int i = 0; i < showSize; i++) {
+			adapterData.add(localData.get(currentNum + i));
 		}
-		
+
 		currentNum += showSize;
-		
+
 	}
- 	
+
 	/**
 	 * handle loading event : update data in adapter and UI,
 	 */
@@ -279,10 +281,10 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 			try {
 				// wait for 2000ms : reserve showing time for loading
 				Thread.sleep(2000);
-				
+
 				// handle server data (cut into batches)
-				batchServerData();
-				
+				batchLocalData();
+
 				// post request to UI thread to update UI
 				handler.post(new Runnable() {
 					@Override
@@ -300,9 +302,9 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 			}
 		}
 	}
-	
+
 	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position,	long id) {
+	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
 		Object itemObject = listView.getItemAtPosition(position);
 		Bundle bundle = new Bundle();
@@ -312,12 +314,11 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 		intent.putExtras(bundle);
 		intent.putExtra("SerializableKey", GOODSINFO_KEY);
 		startActivity(intent);
-		
+
 	}
-	
+
 	/**
-	 * Interface of pull-down-refresh listener
-	 * accomplish concrete refresh logic here 
+	 * Interface of pull-down-refresh listener accomplish concrete refresh logic here
 	 */
 	class MyPullToRefreshListener implements PullToRefreshListener {
 
@@ -330,18 +331,19 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 				handler.post(new Runnable() {
 					@Override
 					public void run() {
-						
+
 						adapterData.clear();
 						adapterData = new ArrayList<GoodsInformation>();
-						serverData.clear();
+						localData.clear();
 						// clear signalNum and adaterData
 						currentNum = 0;
-						// notice to remove previous header before initial adapter again
+						// notice to remove previous header before initial
+						// adapter again
 						listView.removeHeaderView(header);
 						// get data from server again for updating
-						getDataFromServer();
+						getDataFromLocal();
 						adapter.notifyDataSetChanged();
-					    
+
 					}
 				});
 
@@ -353,17 +355,16 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 			}
 		}
 	};
-	
+
 	/**
-	 * Interface of pull-up-load listener
-	 * accomplish concrete loading logic here 
+	 * Interface of pull-up-load listener accomplish concrete loading logic here
 	 */
-	class MyPullToLoadMoreListener implements PullToLoadMoreListener{
+	class MyPullToLoadMoreListener implements PullToLoadMoreListener {
 
 		@Override
 		public void onLoadMore() {
 			// if there is more data to load
-			if(serverData.size() != currentNum){
+			if (localData.size() != currentNum) {
 				// change loadStatus when loading
 				refreshableView.isLoading();
 				// add footer view to the tail of listView
@@ -371,84 +372,90 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 				// start Thread to load data in batch
 				currentThread = new DataLoadThread();
 				currentThread.start();
-			}else{
+			} else {
 				// change loadStatus when not loading
 				refreshableView.finishLoading();
 			}
 		}
-		
+
 	}
-	
+
 	/**
-	 * set selectedData according to selected items in adapterData 
+	 * set selectedData according to selected items in adapterData
 	 * @return number of chosen items
 	 */
-	private String setSelectedData(){
-		
+	private String setSelectedData() {
+
 		String chosenNum = "";
-		for(int i=0; i<adapterData.size() ;i++){
+		for (int i = 0; i < adapterData.size(); i++) {
 			GoodsInformation singleData = adapterData.get(i);
-			if(singleData.getSelected()){
-				String temp = i+" ";
+			if (singleData.getSelected()) {
+				String temp = i + " ";
 				chosenNum += temp;
 				selectedData.add(singleData);
 			}
 		}
 		return chosenNum;
-		
+
 	}
-	
+
 	/**
-	 * bind onClickListener for delete-items Button 
+	 * bind onClickListener for delete-items Button
 	 * @param view
 	 */
-	public void deleteOnClickListener(View view){
-		
+	public void deleteOnClickListener(View view) {
+
 		// delete selected items and keep the same with Server synchronized
 		String nums = setSelectedData();
-		
-		// Thread to communicate with Server 
-		deleteDataOnServer(nums);
-		
+
+		// Thread to communicate with Server
+		deleteDataInLocal(nums);
+
 		// test
 		ToastUtil.showToast(this, nums);
-		
+
 	}
-	
+
 	/**
 	 * bind onClickListener for showOnMap Button
 	 * @param view
 	 */
-	public void addMoreOnClickListener(View view){
-		
-		// jump to addGoodsActivity
-		Intent intent = new Intent(this,AddGoodsActivity.class);
-		startActivity(intent);
-		
-	}
-	
-	/**
-	 * bind onClickListener for checkBox
-	 * set full-checked state
-	 */
-	public void onCheckboxClicked(View view){
+	public void showOnMapOnClickListener(View view) {
 
-		if(checkBox.isChecked()){
-			ToastUtil.showToast(this, checkBox.isChecked()+"");
-			for(GoodsInformation singleData : adapterData){
+		// upload selected items to server and get optimized route
+		String nums = setSelectedData();
+		
+		// test
+		ToastUtil.showToast(this, nums);
+		
+
+		// jump to MainActivity with optimized route
+		Intent intent = new Intent(this, MainActivity.class);
+		startActivity(intent);
+
+	}
+
+	/**
+	 * bind onClickListener for checkBox set full-checked state
+	 */
+	public void onCheckboxClicked(View view) {
+
+		if (checkBox.isChecked()) {
+			ToastUtil.showToast(this, checkBox.isChecked() + "");
+			for (GoodsInformation singleData : adapterData) {
 				singleData.setSelected(true);
 			}
 			adapter.setFullChecked(true);
 			adapter.notifyDataSetChanged();
-		}else{
-			ToastUtil.showToast(this, checkBox.isChecked()+"");
-			for(GoodsInformation singleData : adapterData){
+		} else {
+			ToastUtil.showToast(this, checkBox.isChecked() + "");
+			for (GoodsInformation singleData : adapterData) {
 				singleData.setSelected(false);
 			}
 			adapter.setFullChecked(false);
 			adapter.notifyDataSetChanged();
 		}
-		
+
 	}
-	
+
 }

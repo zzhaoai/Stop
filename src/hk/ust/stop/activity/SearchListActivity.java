@@ -371,6 +371,11 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 		// test
 		ToastUtil.showToast(this, nums);
 		
+
+		// jump to MainActivity with optimized route
+		Intent intent = new Intent(this, MainActivity.class);
+		startActivity(intent);
+		
 	}
 	
 	/**

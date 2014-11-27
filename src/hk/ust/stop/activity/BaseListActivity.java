@@ -11,34 +11,31 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.annotation.SuppressLint;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.AdapterView.OnItemClickListener;
 
-public class AddedGoodsListActivity extends ListActivity implements OnItemClickListener{
+public abstract class BaseListActivity extends ListActivity implements OnItemClickListener{
 
-	public final static String GOODSINFO_KEY = "hk.ust.stop.activity.AddedGoodsListActivity";
+	public static String SERIALIZABLE_KEY;
 
 	private View header;
+	// checkBox in header
 	private CheckBox checkBox;
 	
 	private Handler handler;
 	private Thread currentThread;
 	
 	// record the first cursor of listView for data, currentNum X times the number of batchSize
-	private int currentNum = 0;
+	private int currentNum;
 	// max records shown on one page
-	private int batchSize = 10;
+	private int batchSize;
 	
 	private List<GoodsInformation> selectedData;
 	private List<GoodsInformation> serverData;
@@ -53,12 +50,14 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 
 		// initial GUI
 		initView();
+		// initial value for listView
+		initValue();
 		// bind events
 		initEvent();
 		// initial Handler and ListView
 		initHandler();
-		// get data from server
-		getDataFromServer();
+		// get data
+		initData();
 		
 		serverData = new ArrayList<GoodsInformation>();
 		adapterData = new ArrayList<GoodsInformation>();
@@ -69,18 +68,12 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 	/**
 	 * initial GUI
 	 */
-	private void initView(){
-		
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		setContentView(R.layout.activity_addedgoodslist);
-		refreshableView = (RefreshableView) findViewById(R.id.refreshable_view_addedgoodslist);
-		listView = getListView(); // the way getting listView in ListActivity
-		
-		LayoutInflater inflater = getLayoutInflater();
-		header = (View)inflater.inflate(R.layout.common_list_header, listView, false);
-		checkBox = (CheckBox) header.findViewById(R.id.fullSelect);
-		
-	}
+	public abstract void initView();
+	
+	/**
+	 *  initial value for listView
+	 */
+	public abstract void initValue();
 	
 	/**
 	 * bind events (scroll event and itemClick event)
@@ -98,119 +91,12 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 	/**
 	 * initial Handler, set data, and initial adapter
 	 */
-	@SuppressLint("HandlerLeak")
-	private void initHandler(){
-		handler = new Handler() {
-			@SuppressWarnings("unchecked")
-			public void handleMessage(Message msg) {
-				Bundle bundle = msg.getData();
-				switch (msg.what) {
-				case 1:
-					// get data successfully
-					List<GoodsInformation> goodsItems = (List<GoodsInformation>) bundle.getSerializable(GOODSINFO_KEY);
-					serverData = goodsItems;
-					initAdapter();
-					ToastUtil.showToast(getApplicationContext(), "get data successfully");
-					break;
-				case 2:
-					// get data unsuccessfully
-					ToastUtil.showToast(getApplicationContext(), "fail to get data");
-					break;
-				case 3:
-					// delete successfully
-					int[] deleteNums = bundle.getIntArray("deleteNums");
-					for (int j=deleteNums.length-1; j>=0; j--) {
-						int reverseNum = deleteNums[j];
-						adapterData.remove(reverseNum);
-						adapter.notifyDataSetChanged();
-					}
-					ToastUtil.showToast(getApplicationContext(), "delete successfully");
-					break;
-				case 4:
-					// delete unsuccessfully
-					ToastUtil.showToast(getApplicationContext(), "failed to delete");
-					break;
-				default:
-					ToastUtil.showToast(getApplicationContext(), "logic error");
-					break;
-				}
-
-			}
-		};
-	}
+	public abstract void initHandler();
 	
 	/**
-	 *  get data from server
+	 *  get data for initialization
 	 */
-	private void getDataFromServer(){
-		
-		 new Thread(new Runnable() {
-				@Override
-				public void run() {
-					
-					
-					/*String staticUrl = UrlConstant.DISHINFO_URL;
-					String responseData = ConnectionUtil.getFromServer(staticUrl);
-					List<GoodsItem> dishInfos = Transfer2JsonUtil.dishInfoJsonTransfer(responseData);*/
-					
-					List<GoodsInformation> goodsItems = new ArrayList<GoodsInformation>();
-					
-					for (int i = 0; i < 40; i++) {
-						goodsItems.add(new GoodsInformation("name"+i,i));
-					}
-					
-						
-
-					Message message=new Message();
-					Bundle bundle = new Bundle();
-					bundle.putSerializable(GOODSINFO_KEY, (Serializable) goodsItems);
-					message.setData(bundle);
-					message.what = 1;
-					handler.sendMessage(message);
-					
-				}
-		}).start();
-		
-	}
-	
-	/**
-	 *  inform server to delete data
-	 */
-	private void deleteDataOnServer(final String nums){
-		
-		 new Thread(new Runnable() {
-				@Override
-				public void run() {
-					
-					
-					/*
-					// getUserId before communicating with server
-					SharedPreferences preferences = getSharedPreferences("userInfo", 0);
-					int userId = preferences.getInt("userId", 123);
-					
-					String staticUrl = UrlConstant.DISHINFO_URL;
-					String responseData = ConnectionUtil.post2Server(staticUrl, sendJsonMsg);
-					
-					// if delete successfully according to responseData : Toast("successfully"); else : Toast("failed")
-					*/
-					
-					String[] temp = nums.split(" ");
-					int[] deleteNums = new int[temp.length]; 
-					for(int i=0;i<temp.length;i++){
-						deleteNums[i] = Integer.parseInt(temp[i]);
-					}
-					
-					Message message=new Message();
-					Bundle bundle = new Bundle();
-					bundle.putIntArray("deleteNums", deleteNums);
-					message.setData(bundle);
-					message.what = 3;
-					handler.sendMessage(message);
-					
-				}
-		}).start();
-		
-	}
+	public abstract void initData();
 	
 	/**
 	 *  initial adapter
@@ -306,11 +192,11 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 
 		Object itemObject = listView.getItemAtPosition(position);
 		Bundle bundle = new Bundle();
-		bundle.putSerializable(GOODSINFO_KEY, (Serializable) itemObject);
+		bundle.putSerializable(SERIALIZABLE_KEY, (Serializable) itemObject);
 		Intent intent = new Intent();
 		intent.setClass(this, GoodsInfoActivity.class);
 		intent.putExtras(bundle);
-		intent.putExtra("SerializableKey", GOODSINFO_KEY);
+		intent.putExtra("SerializableKey", SERIALIZABLE_KEY);
 		startActivity(intent);
 		
 	}
@@ -339,7 +225,7 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 						// notice to remove previous header before initial adapter again
 						listView.removeHeaderView(header);
 						// get data from server again for updating
-						getDataFromServer();
+						initData();
 						adapter.notifyDataSetChanged();
 					    
 					}
@@ -399,35 +285,6 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 	}
 	
 	/**
-	 * bind onClickListener for delete-items Button 
-	 * @param view
-	 */
-	public void deleteOnClickListener(View view){
-		
-		// delete selected items and keep the same with Server synchronized
-		String nums = setSelectedData();
-		
-		// Thread to communicate with Server 
-		deleteDataOnServer(nums);
-		
-		// test
-		ToastUtil.showToast(this, nums);
-		
-	}
-	
-	/**
-	 * bind onClickListener for showOnMap Button
-	 * @param view
-	 */
-	public void addMoreOnClickListener(View view){
-		
-		// jump to addGoodsActivity
-		Intent intent = new Intent(this,AddGoodsActivity.class);
-		startActivity(intent);
-		
-	}
-	
-	/**
 	 * bind onClickListener for checkBox
 	 * set full-checked state
 	 */
@@ -450,5 +307,31 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 		}
 		
 	}
+
+	public View getHeader() {
+		return header;
+	}
+
+	public void setHeader(View header) {
+		this.header = header;
+	}
+
+	public int getCurrentNum() {
+		return currentNum;
+	}
+
+	public void setCurrentNum(int currentNum) {
+		this.currentNum = currentNum;
+	}
+
+	public int getBatchSize() {
+		return batchSize;
+	}
+
+	public void setBatchSize(int batchSize) {
+		this.batchSize = batchSize;
+	}
+	
+	
 	
 }
