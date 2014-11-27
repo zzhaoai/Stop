@@ -6,3 +6,5 @@ version 2.1 - combine updating and loading function into one self-defined widget
 2014.11.25
 version 2.2 - fix out bugs of self-defined widget
 version 2.3 - merge file
+2014.11.27
+version 2.4 - create activity for seller to view selling-list(addedGoodsListActivity), promote checkBox
