@@ -17,7 +17,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 /**
- * provide data
+ * 
  * @author XJR
  *
  */
