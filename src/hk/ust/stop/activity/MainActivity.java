@@ -52,7 +52,6 @@ public class MainActivity extends Activity
 	SearchView searchView;
 	PopupWindow popupWindow;
 	boolean isMenuPressToShow = false;
-	int test = 1;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
