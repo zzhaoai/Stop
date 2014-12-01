@@ -46,7 +46,7 @@ public class MainActivity extends Activity
 				implements LocationListener, OnClickListener,
 				OnQueryTextListener, OnItemClickListener {
 
-	// Class to do operations on the Map
+	// Instance to do operations on the Map
 	GoogleMap googleMap;
 	ImageView overflowButton;
 	SearchView searchView;
