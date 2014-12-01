@@ -26,6 +26,8 @@ public class BaseDaoImpl implements BaseDaoInterface{
 		if(null != user) {
 			userId = user.getUserId();
 		}
+		
+		// set attribute value
 		values.put(TableMetaData.USER_ID, userId);
 		values.put(TableMetaData.UPLOAD_FLAG, flag);
 		values.put(TableMetaData.GOODS_ID, info.getGoodsId());
@@ -75,8 +77,10 @@ public class BaseDaoImpl implements BaseDaoInterface{
 		String selectionArgs[] = new String[2];
 		
 		if(null != user) {
+			// If the user is not null, use the userId to query
 			selectionArgs[0] = user.getUserId()+"";
 		} else {
+			// If the user is null, query the default user
 			selectionArgs[0] = GoodsInfoProviderMetaData.DEFAULT_USER + "";
 		}
 		
@@ -92,6 +96,12 @@ public class BaseDaoImpl implements BaseDaoInterface{
 		}
 	}
 
+	
+	/**
+	 * Traverse the cursor and put the result into a ArrayList
+	 * @param cursor
+	 * @return
+	 */
 	private ArrayList<GoodsInformation> convertCursorToArrayList(Cursor cursor) {
 		ArrayList<GoodsInformation> list = new ArrayList<GoodsInformation>();
 		

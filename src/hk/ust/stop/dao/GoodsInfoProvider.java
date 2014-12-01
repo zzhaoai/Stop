@@ -119,7 +119,7 @@ public class GoodsInfoProvider extends ContentProvider{
 
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
-		String id = uri.getPathSegments().get(1);
+		/*String id = uri.getPathSegments().get(1);
 
 		//if the id is not empty, then we delete the record according to id
 		if(!TextUtils.isEmpty(id)) {
@@ -136,7 +136,11 @@ public class GoodsInfoProvider extends ContentProvider{
 		} else {
 			return db.delete(GoodsInfoProviderMetaData.TABLE_NAME, 
 					selection, selectionArgs);
-		}
+		}*/
+		
+		// Just simply delete the record with the selection arguments 
+		return db.delete(GoodsInfoProviderMetaData.TABLE_NAME, 
+				selection, selectionArgs);
 	}
 
 	@Override

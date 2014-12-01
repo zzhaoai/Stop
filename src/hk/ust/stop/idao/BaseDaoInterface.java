@@ -5,6 +5,12 @@ import java.util.ArrayList;
 import hk.ust.stop.model.GoodsInformation;
 import hk.ust.stop.model.UserInformation;
 
+
+/**
+ * This interface define some operation of database
+ * @author XJR
+ *
+ */
 public interface BaseDaoInterface {
 	/**
 	 * Insert a record with user's id
