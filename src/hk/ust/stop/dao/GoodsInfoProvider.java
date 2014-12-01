@@ -16,6 +16,11 @@ import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
 
+/**
+ * provide data
+ * @author XJR
+ *
+ */
 public class GoodsInfoProvider extends ContentProvider{
 
 	
