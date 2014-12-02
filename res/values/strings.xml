@@ -36,6 +36,14 @@
     <!-- addedGoodsActivity -->
     <string name="deleteAddedGoods">delete</string>
     <string name="addMoreGoods">add more</string> 
+    <string name="take_picture">Take Picture</string>
+    <string name="delete">Delete Picture</string>
+    <string name="string_reset">Reset</string>
+    <string name="string_save">Save</string>
+	<string name="string_hint_productName">Input Product Name</string>
+	<string name="string_hint_productDescription">Describe product</string>
+	<string name="string_hint_productPrice">Set Price</string>
+	<string name="string_blank_words"> </string>
     
     <!-- searchListActivity -->
     <string name="save">save</string>
