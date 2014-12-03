@@ -136,6 +136,8 @@ public class ConnectionUtil {
             bm.compress(CompressFormat.JPEG, 100, bos);
             byte[] data = bos.toByteArray();
             HttpClient httpClient = new DefaultHttpClient();
+            
+            // Set the url for uploading picture
             HttpPost postRequest = new HttpPost(
                     "http://demo.engineerinme.com:5000/upload");
             
@@ -204,11 +206,15 @@ public class ConnectionUtil {
 	 * @throws Exception
 	 */
 	public static ArrayList<Bitmap> getBitmaps(ArrayList<String> urls) throws Exception {
+		// This list would store the bitmap that received from server
 		ArrayList<Bitmap> pictures = new ArrayList<Bitmap>();
 		HttpClient httpclient = getMultithreadClient();
+		
 		for(int i = 0; i < urls.size(); i++){
 			HttpGet httpRequest = new HttpGet(urls.get(i));
 			HttpResponse httpResponse = httpclient.execute(httpRequest);
+			// If the operation is execute successfully, 
+			// then get the bitmaps from stream
 			if(httpResponse.getStatusLine().getStatusCode() == HttpStatus.SC_OK){    
                 HttpEntity httpEntity = httpResponse.getEntity();    
                 InputStream is = httpEntity.getContent(); 

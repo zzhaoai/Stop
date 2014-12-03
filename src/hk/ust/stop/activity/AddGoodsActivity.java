@@ -2,7 +2,6 @@ package hk.ust.stop.activity;
 
 import hk.ust.stop.dao.PictureDaoImpl;
 import hk.ust.stop.util.ConnectionUtil;
-import hk.ust.stop.util.ToastUtil;
 
 import java.io.File;
 import java.util.Calendar;
@@ -53,6 +52,7 @@ public class AddGoodsActivity extends Activity implements OnClickListener{
 		
 		dao = PictureDaoImpl.getInstance();
 		
+		// Initialize these views
 		captureButton = (Button) findViewById(R.id.captureButton);
 		deleteButton = (Button) findViewById(R.id.deleteButton);
 		resetButton = (Button) findViewById(R.id.resetButton);
@@ -90,6 +90,11 @@ public class AddGoodsActivity extends Activity implements OnClickListener{
 	}
 	
 
+	/**
+	 *  When the user finish taking picture, then enter this method.
+	 *  This method would change the size of the picture, so that it
+	 *  can fit the ImageView
+	 */
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -145,6 +150,7 @@ public class AddGoodsActivity extends Activity implements OnClickListener{
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.captureButton:
+			// Call system camera to take a picture, and save it in a temp file
 			Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 			File tempPicture = new File(tempPicPath);
 			if(tempPicture.exists())
@@ -155,13 +161,18 @@ public class AddGoodsActivity extends Activity implements OnClickListener{
 			startActivityForResult(intent, 1);
 			break;
 		case R.id.deleteButton:
+			// Delete the picture 
 			currentBitmap = null;
 			imageView.setImageResource(R.drawable.ic_launcher);
 			break;
 		case R.id.resetButton:
+			// Reset the ImageView and EditText
 			resetActivity();
 			break;
 		case R.id.saveButton:
+			/**
+			 * Save the picture in SD card, and also save it in the server
+			 */
 			if(isReadyToSave()) {
 				new Thread(new Runnable() {
 					@Override
@@ -176,10 +187,6 @@ public class AddGoodsActivity extends Activity implements OnClickListener{
 				Toast.makeText(this, productPrice.getText().toString(), 
 						Toast.LENGTH_SHORT).show();
 			}
-			/*Intent intent2 = new Intent();
-			intent2.setClass(this, MainActivity.class);
-			startActivity(intent2);
-			finish();*/
 			
 			break;
 
@@ -189,6 +196,9 @@ public class AddGoodsActivity extends Activity implements OnClickListener{
 	}
 	
 	
+	/**
+	 * Reset this activity, cleat the EditText and the ImageView
+	 */
 	private void resetActivity() {
 		productName.setText("");
 		productDescription.setText("");
@@ -198,6 +208,11 @@ public class AddGoodsActivity extends Activity implements OnClickListener{
 		imageView.setImageResource(R.drawable.ic_launcher);
 	}
 
+	/**
+	 * To check whether the user has taken a picture and 
+	 * filled in all the EditText
+	 * @return
+	 */
 	private boolean isReadyToSave() {
 		if(null == currentBitmap || 
 				null == currentFileName ||
