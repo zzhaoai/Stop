@@ -52,7 +52,7 @@ public class PictureDaoImpl {
 		
 		appBaseDir = null;
 		if(sdDir != null){
-			appBaseDir =  sdDir.toString()+"/StopForAndroid/Pictures/";
+			appBaseDir =  sdDir.getPath()+"/StopForAndroid/Pictures/";
 			File dirFile = new File(appBaseDir);
 			
 			// If the folder doesn't exist in SD card, we will create it

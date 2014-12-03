@@ -1,6 +1,7 @@
 package hk.ust.stop.util;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -8,10 +9,20 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.HttpMultipartMode;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.CompressFormat;
 import android.util.Log;
 
 public class ConnectionUtil {
-
+    
 	/**
 	 * Connect Client with Server, send json to server and get response from server
 	 * @param staticUrl : complete Connect Url
@@ -98,4 +109,37 @@ public class ConnectionUtil {
 		return "NoMessage";
 	}
 	
+	
+	@SuppressWarnings("deprecation")
+	public static void uploadFile(Bitmap bm,String fileName)
+    {
+		try {
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            bm.compress(CompressFormat.JPEG, 100, bos);
+            byte[] data = bos.toByteArray();
+            HttpClient httpClient = new DefaultHttpClient();
+            HttpPost postRequest = new HttpPost(
+                    "http://demo.engineerinme.com:5000/upload");
+            
+            ByteArrayBody bab = new ByteArrayBody(data,"image/png",fileName+".jpg");
+            MultipartEntity reqEntity = new MultipartEntity(
+            HttpMultipartMode.BROWSER_COMPATIBLE);
+            reqEntity.addPart("file", bab);
+            
+            postRequest.setEntity(reqEntity);
+            HttpResponse response = httpClient.execute(postRequest);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    response.getEntity().getContent(), "UTF-8"));
+            String sResponse;
+            StringBuilder s = new StringBuilder();
+ 
+            while ((sResponse = reader.readLine()) != null) {
+                s = s.append(sResponse);
+            }
+            System.out.println("Response: " + s);
+        } catch (Exception e) {
+            // handle exception here
+            Log.e(e.getClass().getName(), e.getMessage());
+        }
+    }
 }

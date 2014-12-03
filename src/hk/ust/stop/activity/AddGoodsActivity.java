@@ -1,6 +1,8 @@
 package hk.ust.stop.activity;
 
 import hk.ust.stop.dao.PictureDaoImpl;
+import hk.ust.stop.util.ConnectionUtil;
+import hk.ust.stop.util.ToastUtil;
 
 import java.io.File;
 import java.util.Calendar;
@@ -13,6 +15,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
@@ -40,11 +43,13 @@ public class AddGoodsActivity extends Activity implements OnClickListener{
 	private Bitmap currentBitmap;
 	private String currentFileName;
 	private PictureDaoImpl dao;
+	private Handler handler;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_addgoods);
+		handler = new Handler();
 		
 		dao = PictureDaoImpl.getInstance();
 		
@@ -95,6 +100,7 @@ public class AddGoodsActivity extends Activity implements OnClickListener{
 			}
 
 			File file = new File(tempPicPath);
+			
 			if (file.exists()) {
 				Toast.makeText(this, file.getName(), Toast.LENGTH_LONG).show();
 				BitmapFactory.Options bmpFactoryOptions = new BitmapFactory.Options();
@@ -157,7 +163,12 @@ public class AddGoodsActivity extends Activity implements OnClickListener{
 			break;
 		case R.id.saveButton:
 			if(isReadyToSave()) {
-				
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						ConnectionUtil.uploadFile(currentBitmap, currentFileName);
+					}
+				}).start();
 				/** Do some real saving work here **/
 				dao.saveImageToSdcard(currentBitmap, currentFileName);
 				resetActivity();
