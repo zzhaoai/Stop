@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -80,6 +81,18 @@ public class LoginActivity extends Activity
 		default:
 			break;
 		}
+	}
+
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if (keyCode == KeyEvent.KEYCODE_BACK) { 
+			Intent intent = new Intent();
+			intent.setClass(this, MainActivity.class);
+			startActivity(intent);
+			finish();
+			return true;
+		} 
+		return super.onKeyDown(keyCode, event);
 	}
 
 	

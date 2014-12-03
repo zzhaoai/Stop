@@ -120,22 +120,27 @@ public class MainActivity extends Activity
 		ArrayList<HashMap<String, Object>> menuList = new ArrayList<HashMap<String, Object>>(); 
 		HashMap<String, Object> map1 = new HashMap<String, Object>();
 		map1.put("menu_list_image", R.drawable.ic_action_search);
-		map1.put("menu_list_text", "MyAdded");
+		map1.put("menu_list_text", "MyFavorite");
 		
 		HashMap<String, Object> map2 = new HashMap<String, Object>();
-		map2.put("menu_list_image", R.drawable.ic_action_search);
-		map2.put("menu_list_text", "MyUploaded");
+		map2.put("menu_list_image", R.drawable.ic_action_overflow);
+		map2.put("menu_list_text", "Upload!");
 		
 		HashMap<String, Object> map3 = new HashMap<String, Object>();
-		map3.put("menu_list_image", R.drawable.ic_action_overflow);
+		map3.put("menu_list_image", R.drawable.ic_action_search);
+		map3.put("menu_list_text", "MyUploaded");
+		
+		HashMap<String, Object> map4 = new HashMap<String, Object>();
+		map4.put("menu_list_image", R.drawable.ic_action_overflow);
 		if(isLogin) {
-			map3.put("menu_list_text", "Log Out");
+			map4.put("menu_list_text", "Log Out");
 		} else {
-			map3.put("menu_list_text", "Log In");
+			map4.put("menu_list_text", "Log In");
 		}
 		menuList.add(map1);
 		menuList.add(map2);
 		menuList.add(map3);
+		menuList.add(map4);
 		
 		SimpleAdapter adapter = new SimpleAdapter(this, menuList, 
 				R.layout.menu_listview_layout, 
@@ -256,7 +261,6 @@ public class MainActivity extends Activity
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		System.out.println("****press");
 		if (keyCode == KeyEvent.KEYCODE_MENU) { 
 			isMenuPressToShow = true;
 			togglePopupWindow();
@@ -276,14 +280,21 @@ public class MainActivity extends Activity
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
+		Intent intent = new Intent();
 		switch (position) {
 		case 0:
-			
+			intent.setClass(this, FavoriteGoodsListActivity.class);
+			startActivity(intent);
 			break;
 		case 1:
+			intent.setClass(this, AddGoodsActivity.class);
+			startActivity(intent);
 			break;
 		case 2:
-			Intent intent = new Intent();
+			intent.setClass(this, AddedGoodsListActivity.class);
+			startActivity(intent);
+			break;
+		case 3:
 			intent.setClass(this, LoginActivity.class);
 			startActivity(intent);
 			finish();
