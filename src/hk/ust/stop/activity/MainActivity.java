@@ -80,7 +80,7 @@ public class MainActivity extends Activity
 		//insert a record to the database
 		ContentResolver resolver = getContentResolver();
 		BaseDaoInterface dao = new BaseDaoImpl(resolver);
-		GoodsInformation goods = new GoodsInformation(1,2,89.1,26.3,45.5,"book","worth to read");
+		GoodsInformation goods = new GoodsInformation(1,"pic",89.1,26.3,45.5,"book","worth to read");
 		dao.insert(null,goods,1);
 		
 		// To listen action whenever we click on the map

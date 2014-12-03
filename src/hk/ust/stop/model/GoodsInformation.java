@@ -7,7 +7,7 @@ public class GoodsInformation implements Serializable{
 	private static final long serialVersionUID = 1L;
 
 	private long 	goodsId;
-	private long 	pictureId;
+	private String 	pictureName;
 	private double	longitude;
 	private double	latitude;
 	private double	price;
@@ -15,10 +15,10 @@ public class GoodsInformation implements Serializable{
 	private String  goodsDescription;
 	private boolean selected;
 	
-	public GoodsInformation(long goodsId, long pictureId, double longitude,
+	public GoodsInformation(long goodsId, String pictureName, double longitude,
 			double latitude, double price, String name, String desc) {
 		this.goodsId = goodsId;
-		this.pictureId = pictureId;
+		this.pictureName = pictureName;
 		this.longitude = longitude;
 		this.latitude = latitude;
 		this.price = price;
@@ -42,11 +42,11 @@ public class GoodsInformation implements Serializable{
 	public void setGoodsId(long goodsId) {
 		this.goodsId = goodsId;
 	}
-	public long getPictureId() {
-		return pictureId;
+	public String getPictureName() {
+		return pictureName;
 	}
-	public void setPictureId(long pictureId) {
-		this.pictureId = pictureId;
+	public void setPictureName(String pictureName) {
+		this.pictureName = pictureName;
 	}
 	public double getLongitude() {
 		return longitude;

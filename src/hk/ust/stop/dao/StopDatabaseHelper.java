@@ -14,7 +14,7 @@ public class StopDatabaseHelper extends SQLiteOpenHelper{
 				  ",UPLOAD_FLAG integer not null" +
 				  ",USER_ID long not null" +
 				  ",GOODS_ID long not null" +
-				  ",PICTURE_ID long not null" +
+				  ",PICTURE_NAME varchar(100) not null" +
 				  ",LONGITUDE long not null" +
 				  ",LATITUDE long not null" +
 				  ",PRICE double not null" +

@@ -31,7 +31,7 @@ public class BaseDaoImpl implements BaseDaoInterface{
 		values.put(TableMetaData.USER_ID, userId);
 		values.put(TableMetaData.UPLOAD_FLAG, flag);
 		values.put(TableMetaData.GOODS_ID, info.getGoodsId());
-		values.put(TableMetaData.PICTURE_ID, info.getPictureId());
+		values.put(TableMetaData.PICTURE_NAME, info.getPictureName());
 		values.put(TableMetaData.LONGITUDE, info.getLongitude());
 		values.put(TableMetaData.LATITUDE, info.getLatitude());
 		values.put(TableMetaData.PRICE, info.getPrice());
@@ -110,7 +110,7 @@ public class BaseDaoImpl implements BaseDaoInterface{
 			GoodsInformation goods = new GoodsInformation();
 			goods.setGoodsId(cursor.getLong(cursor.getColumnIndex(TableMetaData.GOODS_ID)));
 			goods.setGoodsName(cursor.getString(cursor.getColumnIndex(TableMetaData.GOODS_NAME)));
-			goods.setPictureId(cursor.getLong(cursor.getColumnIndex(TableMetaData.PICTURE_ID)));
+			goods.setPictureName(cursor.getString(cursor.getColumnIndex(TableMetaData.PICTURE_NAME)));
 			goods.setLongitude(cursor.getDouble(cursor.getColumnIndex(TableMetaData.LONGITUDE)));
 			goods.setLatitude(cursor.getDouble(cursor.getColumnIndex(TableMetaData.LATITUDE)));
 			goods.setPrice(cursor.getDouble(cursor.getColumnIndex(TableMetaData.PRICE)));

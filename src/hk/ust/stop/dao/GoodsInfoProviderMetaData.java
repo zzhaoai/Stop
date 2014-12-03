@@ -23,7 +23,7 @@ public class GoodsInfoProviderMetaData {
 		public final static String UPLOAD_FLAG = "UPLOAD_FLAG";
 		public final static String USER_ID = "USER_ID"; 
 		public final static String GOODS_ID = "GOODS_ID";
-		public final static String PICTURE_ID = "PICTURE_ID";
+		public final static String PICTURE_NAME = "PICTURE_NAME";
 		public final static String LONGITUDE = "LONGITUDE";
 		public final static String LATITUDE = "LATITUDE";
 		public final static String PRICE = "PRICE";
