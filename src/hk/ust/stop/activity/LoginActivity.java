@@ -1,10 +1,12 @@
 package hk.ust.stop.activity;
 
+import hk.ust.stop.util.AccountUtil;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -14,6 +16,13 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+
+/**
+ * This activity is used for login, and user can also register a new accound
+ * by pressing the register button
+ * @author XJR
+ *
+ */
 public class LoginActivity extends Activity
 			implements OnClickListener{
 
@@ -21,11 +30,15 @@ public class LoginActivity extends Activity
 	private EditText passwordEditText;
 	private Button loginButton;
 	private Button registerButton;
+	private Handler handler;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.login_activity_layout);
+		
+		// Initialize the views
+		handler = new Handler();
 		nameEditText = (EditText)findViewById(R.id.edittext_user_name);
 		passwordEditText = (EditText)findViewById(R.id.edittext_user_password);
 		loginButton = (Button)findViewById(R.id.button_login);
@@ -40,7 +53,6 @@ public class LoginActivity extends Activity
 
 	@Override
 	public View onCreateView(String name, Context context, AttributeSet attrs) {
-		// TODO Auto-generated method stub
 		return super.onCreateView(name, context, attrs);
 	}
 
@@ -66,13 +78,12 @@ public class LoginActivity extends Activity
 		Intent intent = new Intent();
 		switch (v.getId()) {
 		case R.id.button_login:
-			Toast.makeText(this, nameEditText.getText().toString()+"***"+
-					passwordEditText.getText().toString(), Toast.LENGTH_LONG).show();
-			intent.setClass(this, MainActivity.class);
-			intent.putExtra("isLogin", true);
-			startActivity(intent);
-			finish();
+			// Disable the login button
+			loginButton.setClickable(false);
+			// Create a new thread to check the name and the password
+			new Thread(runnable).start();
 			break;
+			
 		case R.id.button_register:
 			intent.setClass(this, RegisterActivity.class);
 			startActivity(intent);
@@ -96,4 +107,41 @@ public class LoginActivity extends Activity
 	}
 
 	
+	private Runnable runnable = new Runnable() {
+		
+		@Override
+		public void run() {
+			// Check whether the username and the password match
+			boolean result = AccountUtil.checkNameAndPassword(
+					nameEditText.getText().toString(), 
+					passwordEditText.getText().toString());
+			if(true == result) {
+				// If the name and the password match, then jump back to MainActivity
+				handler.post(new Runnable() {
+					
+					@Override
+					public void run() {
+						Intent intent = new Intent();
+						intent.setClass(LoginActivity.this,
+								MainActivity.class);
+						intent.putExtra("isLogin", true);
+						startActivity(intent);
+						finish();
+					}
+				});
+			} else {
+				// If name and the password does't match, give a hint to user
+				loginButton.setClickable(true);
+				handler.post(new Runnable() {
+					
+					@Override
+					public void run() {
+						Toast.makeText(LoginActivity.this, 
+								"can not login", Toast.LENGTH_LONG).show();
+					}
+				});
+			}
+		
+		}
+	};
 }

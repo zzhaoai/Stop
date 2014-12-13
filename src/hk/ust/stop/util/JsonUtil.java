@@ -1,5 +1,10 @@
 package hk.ust.stop.util;
 
+import java.io.IOException;
+
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -44,4 +49,24 @@ public class JsonUtil {
 		return reply;
 	}
 	
+	
+	/**
+	 * This function would change the json object to a object that we have define
+	 * @param responseData
+	 * @param cls
+	 * @return
+	 */
+	public static Object getObjectFromJson(String responseData, Class cls){
+		try {
+			return new ObjectMapper().readValue(responseData, cls);
+		} catch (JsonParseException e) {
+			e.printStackTrace();
+		} catch (JsonMappingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
 }
