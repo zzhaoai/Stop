@@ -215,6 +215,7 @@ public class MainActivity extends Activity
 		
 		// To hold latitude and longitude values
 		LatLng position = new LatLng(location.getLatitude(), location.getLongitude());
+		AccountUtil.setCurrentLocation(position);
 
 		// Creating object to pass our current location to the map
 		MarkerOptions markerOptions = new MarkerOptions();

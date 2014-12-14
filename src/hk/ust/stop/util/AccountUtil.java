@@ -1,5 +1,7 @@
 package hk.ust.stop.util;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import hk.ust.stop.model.UserInformation;
 
 
@@ -17,11 +19,13 @@ public class AccountUtil {
 	private static UserInformation user;
 	private static final String EMPTY_RESPONSE;
 	private static final String NO_MESSAGE;
+	private static LatLng currentLocation;
 	
 	static {
 		user = null;
 		EMPTY_RESPONSE = "{}";
 		NO_MESSAGE = "NoMessage";
+		currentLocation = null;
 	}
 	
 	
@@ -100,4 +104,15 @@ public class AccountUtil {
 		
 		return true;
 	}
+
+
+	public static LatLng getCurrentLocation() {
+		return currentLocation;
+	}
+
+
+	public static void setCurrentLocation(LatLng currentLocation) {
+		AccountUtil.currentLocation = currentLocation;
+	}
+	
 }
