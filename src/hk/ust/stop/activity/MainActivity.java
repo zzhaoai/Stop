@@ -3,6 +3,7 @@ package hk.ust.stop.activity;
 import hk.ust.stop.dao.BaseDaoImpl;
 import hk.ust.stop.idao.BaseDaoInterface;
 import hk.ust.stop.model.GoodsInformation;
+import hk.ust.stop.util.AccountUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -292,9 +293,20 @@ public class MainActivity extends Activity
 			startActivity(intent);
 			break;
 		case 3:
-			intent.setClass(this, LoginActivity.class);
-			startActivity(intent);
-			finish();
+			if(getIntent().getBooleanExtra("isLogin", false)) {
+				// If the user has login, then logout.
+				AccountUtil.logoutUser();
+				getIntent().putExtra("isLogin", false);
+				popupWindow.dismiss();
+				initPopupWindow(false);
+			} else {
+				// If the user has not login, then jump to LoginActivity.
+				popupWindow.dismiss();
+				intent.setClass(this, LoginActivity.class);
+				startActivity(intent);
+				finish();
+			}
+			
 
 		default:
 			break;

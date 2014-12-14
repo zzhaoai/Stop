@@ -44,12 +44,16 @@ public class ServerUrlUtil {
 	 */
 	public static String AddUserUrl(String name, String password,
 								String email, String phone) {
-		return SERVER_BASE + "register/" + name + password
-				+ email + phone;
+		return SERVER_BASE + "register/" + name + "/" + email
+				+ "/" + phone + "/" + password;
 	}
 	
 	
-	
+	/**
+	 * Url for adding a product to the server.
+	 * @param goods
+	 * @return
+	 */
 	public static String AddProductUrl(GoodsInformation goods) {
 		return SERVER_BASE + "AddProduct/" +
 				goods.getPrice() + "/" +
@@ -58,5 +62,15 @@ public class ServerUrlUtil {
 				goods.getLatitude() + "/" +
 				goods.getGoodsName() + "/" +
 				goods.getGoodsDescription() + "/";
+	}
+	
+	
+	/**
+	 * Url for searching products with the productName.
+	 * @param productName
+	 * @return
+	 */
+	public static String SearchProductUrl(String productName) {
+		return SERVER_BASE + "search/" + productName;
 	}
 }
