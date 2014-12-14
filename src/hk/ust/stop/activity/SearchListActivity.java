@@ -136,7 +136,7 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 					
 					/*String staticUrl = UrlConstant.DISHINFO_URL;
 					String responseData = ConnectionUtil.getFromServer(staticUrl);
-					List<GoodsItem> dishInfos = Transfer2JsonUtil.dishInfoJsonTransfer(responseData);*/
+					List<GoodsInformation> goodsItems = Transfer2JsonUtil.goodsInfoJsonTransfer(responseData);*/
 					
 					List<GoodsInformation> goodsItems = new ArrayList<GoodsInformation>();
 					

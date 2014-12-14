@@ -10,9 +10,11 @@ import hk.ust.stop.model.GoodsInformation;
 public class GoodsUtil {
 
 	private static final String EMPTY_RESPONSE;
+	private static final String NO_MESSAGE;
 	
 	static {
 		EMPTY_RESPONSE = "{}";
+		NO_MESSAGE = "NoMessage";
 	}
 	
 	
@@ -44,7 +46,8 @@ public class GoodsUtil {
 		String responseData = ConnectionUtil.getFromServer(
 				ServerUrlUtil.ProductByIdUrl(productId));
 		
-		if(responseData.equals(EMPTY_RESPONSE))
+		if(responseData.equals(EMPTY_RESPONSE) ||
+				responseData.equals(NO_MESSAGE))
 			return null;
 		else {
 			GoodsInformation goods = new GoodsInformation();

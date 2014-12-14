@@ -16,10 +16,12 @@ public class AccountUtil {
 
 	private static UserInformation user;
 	private static final String EMPTY_RESPONSE;
+	private static final String NO_MESSAGE;
 	
 	static {
 		user = null;
 		EMPTY_RESPONSE = "{}";
+		NO_MESSAGE = "NoMessage";
 	}
 	
 	
@@ -32,7 +34,8 @@ public class AccountUtil {
 	public static boolean checkNameAndPassword(String name, String password) {
 		String responseData = ConnectionUtil.getFromServer(
 				ServerUrlUtil.LoginUrl(name, password));
-		if(responseData.equals(EMPTY_RESPONSE))
+		if(responseData.equals(EMPTY_RESPONSE) ||
+				responseData.equals(NO_MESSAGE))
 			return false;
 		
 		// Change JSON string to a UserInformation object
@@ -47,6 +50,11 @@ public class AccountUtil {
 				JsonUtil.jsonObjectTransfer(responseData, "phone_number"));
 		
 		return true;
+	}
+	
+	
+	public static void logoutUser() {
+		user = null;
 	}
 	
 	
@@ -71,6 +79,7 @@ public class AccountUtil {
 								String email, String phone) {
 		String responseData = ConnectionUtil.getFromServer(
 				ServerUrlUtil.AddUserUrl(name, password, email, phone));
+		System.out.println("******"+responseData);
 		if(responseData.equals(EMPTY_RESPONSE))
 			return false;
 		
@@ -80,7 +89,7 @@ public class AccountUtil {
 				JsonUtil.jsonObjectTransfer(responseData, "username"));
 		user.setUserEmail(
 				JsonUtil.jsonObjectTransfer(responseData, "email"));
-		user.setUserId(Integer.parseInt(
+		user.setUserId(Long.parseLong(
 				JsonUtil.jsonObjectTransfer(responseData, "id")));
 		user.setUserPhoneNumber(
 				JsonUtil.jsonObjectTransfer(responseData, "phone_number"));
