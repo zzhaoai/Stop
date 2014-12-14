@@ -12,11 +12,13 @@ import hk.ust.stop.widget.RefreshableView.PullToRefreshListener;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.ListActivity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -31,6 +33,7 @@ import android.widget.AdapterView.OnItemClickListener;
 public class SearchListActivity extends ListActivity implements OnItemClickListener{
 
 	public final static String GOODSINFO_KEY = "hk.ust.stop.activity.SearchListActivity";
+	public final static String GOODSPICS_KEY = "hk.ust.stop.activity.SearchListActivity.goodsPics";
 
 	private View header;
 	private CheckBox checkBox;
@@ -43,6 +46,7 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 	// max records shown on one page
 	private int batchSize = 10;
 	
+	private List<Bitmap> goodsPics;
 	private List<GoodsInformation> selectedData;
 	private List<GoodsInformation> serverData;
 	private List<GoodsInformation> adapterData; // model
@@ -65,6 +69,7 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 		// get data from server
 		getDataFromServer();
 		
+		goodsPics = new ArrayList<Bitmap>();
 		serverData = new ArrayList<GoodsInformation>();
 		adapterData = new ArrayList<GoodsInformation>();
 		selectedData = new ArrayList<GoodsInformation>();
@@ -118,10 +123,20 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 					serverData = goodsItems;
 					initAdapter();
 					ToastUtil.showToast(getApplicationContext(), "get data successfully");
+					// open Thread to download picture in background
+					getPicFromServer();
 					break;
 				case 2:
 					// get data unsuccessfully
 					ToastUtil.showToast(getApplicationContext(), "fail to get data");
+					break;
+				case 3:
+					// download pics successfully
+					goodsPics = (List<Bitmap>) bundle.getSerializable(GOODSPICS_KEY);
+					break;
+				case 4:
+					// download pics unsuccessfully
+					ToastUtil.showToast(getApplicationContext(), "fail to download pics");
 					break;
 				default:
 					ToastUtil.showToast(getApplicationContext(), "logic error");
@@ -157,6 +172,42 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 					bundle.putSerializable(GOODSINFO_KEY, (Serializable) goodsItems);
 					message.setData(bundle);
 					message.what = 1;
+					handler.sendMessage(message);
+					
+				}
+		}).start();
+		
+	}
+	
+	/**
+	 *  download picture of goods from server
+	 */
+	private void getPicFromServer(){
+		
+		 new Thread(new Runnable() {
+				@Override
+				public void run() {
+					
+					List<String> picUrlList = new ArrayList<String>();
+					Iterator<GoodsInformation> iterator = serverData.iterator();
+					while(iterator.hasNext()){
+						GoodsInformation goodsItem = iterator.next();
+						String singlePicName = goodsItem.getPictureName();
+						String staticUrl = ServerUrlUtil.downloadPictureUrl(singlePicName);
+						picUrlList.add(staticUrl);
+					}
+					ArrayList<Bitmap> goodsPics = null;
+					try {
+						goodsPics = ConnectionUtil.getBitmaps(picUrlList);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					Message message=new Message();
+					Bundle bundle = new Bundle();
+					bundle.putSerializable(GOODSPICS_KEY, (Serializable) goodsPics);
+					message.setData(bundle);
+					message.what = 3;
 					handler.sendMessage(message);
 					
 				}
@@ -260,6 +311,7 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 		Object itemObject = listView.getItemAtPosition(position);
 		Bundle bundle = new Bundle();
 		bundle.putSerializable(GOODSINFO_KEY, (Serializable) itemObject);
+		bundle.putParcelable("picture", goodsPics.get(position));
 		Intent intent = new Intent();
 		intent.setClass(this, GoodsInfoActivity.class);
 		intent.putExtras(bundle);

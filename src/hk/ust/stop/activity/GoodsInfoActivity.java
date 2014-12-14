@@ -5,6 +5,8 @@ import hk.ust.stop.model.GoodsInformation;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
@@ -21,6 +23,7 @@ public class GoodsInfoActivity extends Activity {
 	private Button returnToSearchList;
 	
 	private GoodsInformation goodsItem;
+	private Bitmap goodsPic;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +32,8 @@ public class GoodsInfoActivity extends Activity {
 		Bundle extras = getIntent().getExtras();
 		String serializableKey = extras.getString("SerializableKey");
 		goodsItem = (GoodsInformation)extras.getSerializable(serializableKey);
-
+		goodsPic = extras.getParcelable("picture");
+		
 		initView();
 		initEvent();
 
