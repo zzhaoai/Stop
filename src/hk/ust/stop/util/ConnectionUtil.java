@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -217,7 +218,7 @@ public class ConnectionUtil {
 	 * @return
 	 * @throws Exception
 	 */
-	public static ArrayList<Bitmap> getBitmaps(ArrayList<String> urls) throws Exception {
+	public static ArrayList<Bitmap> getBitmaps(List<String> urls) throws Exception {
 		// This list would store the bitmap that received from server
 		ArrayList<Bitmap> pictures = new ArrayList<Bitmap>();
 		HttpClient httpclient = getMultithreadClient();

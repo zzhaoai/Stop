@@ -2,6 +2,8 @@ package hk.ust.stop.activity;
 
 import hk.ust.stop.adapter.CommonListAdapter;
 import hk.ust.stop.model.GoodsInformation;
+import hk.ust.stop.util.ConnectionUtil;
+import hk.ust.stop.util.ServerUrlUtil;
 import hk.ust.stop.util.ToastUtil;
 import hk.ust.stop.widget.RefreshableView;
 import hk.ust.stop.widget.RefreshableView.PullToLoadMoreListener;
@@ -9,11 +11,13 @@ import hk.ust.stop.widget.RefreshableView.PullToRefreshListener;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import android.annotation.SuppressLint;
 import android.app.ListActivity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -28,6 +32,7 @@ import android.widget.AdapterView.OnItemClickListener;
 public class AddedGoodsListActivity extends ListActivity implements OnItemClickListener{
 
 	public final static String GOODSINFO_KEY = "hk.ust.stop.activity.AddedGoodsListActivity";
+	public final static String GOODSPICS_KEY = "hk.ust.stop.activity.AddedGoodsListActivity.goodsPics";
 
 	private View header;
 	private CheckBox checkBox;
@@ -40,6 +45,7 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 	// max records shown on one page
 	private int batchSize = 10;
 	
+	private List<Bitmap> goodsPics;
 	private List<GoodsInformation> selectedData;
 	private List<GoodsInformation> serverData;
 	private List<GoodsInformation> adapterData; // model
@@ -60,6 +66,7 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 		// get data from server
 		getDataFromServer();
 		
+		goodsPics = new ArrayList<Bitmap>();
 		serverData = new ArrayList<GoodsInformation>();
 		adapterData = new ArrayList<GoodsInformation>();
 		selectedData = new ArrayList<GoodsInformation>();
@@ -111,6 +118,8 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 					serverData = goodsItems;
 					initAdapter();
 					ToastUtil.showToast(getApplicationContext(), "get data successfully");
+					// open Thread to download picture in background
+					getPicFromServer();
 					break;
 				case 2:
 					// get data unsuccessfully
@@ -129,6 +138,14 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 				case 4:
 					// delete unsuccessfully
 					ToastUtil.showToast(getApplicationContext(), "failed to delete");
+					break;
+				case 5:
+					// download pics successfully
+					goodsPics = (List<Bitmap>) bundle.getSerializable(GOODSPICS_KEY);
+					break;
+				case 6:
+					// download pics unsuccessfully
+					ToastUtil.showToast(getApplicationContext(), "fail to download pics");
 					break;
 				default:
 					ToastUtil.showToast(getApplicationContext(), "logic error");
@@ -166,6 +183,42 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 					bundle.putSerializable(GOODSINFO_KEY, (Serializable) goodsItems);
 					message.setData(bundle);
 					message.what = 1;
+					handler.sendMessage(message);
+					
+				}
+		}).start();
+		
+	}
+	
+	/**
+	 *  download picture of goods from server
+	 */
+	private void getPicFromServer(){
+		
+		 new Thread(new Runnable() {
+				@Override
+				public void run() {
+					
+					List<String> picUrlList = new ArrayList<String>();
+					Iterator<GoodsInformation> iterator = serverData.iterator();
+					while(iterator.hasNext()){
+						GoodsInformation goodsItem = iterator.next();
+						String singlePicName = goodsItem.getPictureName();
+						String staticUrl = ServerUrlUtil.downloadPictureUrl(singlePicName);
+						picUrlList.add(staticUrl);
+					}
+					ArrayList<Bitmap> goodsPics = null;
+					try {
+						goodsPics = ConnectionUtil.getBitmaps(picUrlList);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					Message message=new Message();
+					Bundle bundle = new Bundle();
+					bundle.putSerializable(GOODSPICS_KEY, (Serializable) goodsPics);
+					message.setData(bundle);
+					message.what = 5;
 					handler.sendMessage(message);
 					
 				}
@@ -307,6 +360,7 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 		Object itemObject = listView.getItemAtPosition(position);
 		Bundle bundle = new Bundle();
 		bundle.putSerializable(GOODSINFO_KEY, (Serializable) itemObject);
+		bundle.putParcelable("picture", goodsPics.get(position));
 		Intent intent = new Intent();
 		intent.setClass(this, GoodsInfoActivity.class);
 		intent.putExtras(bundle);

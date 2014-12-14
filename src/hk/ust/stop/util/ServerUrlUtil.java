@@ -84,4 +84,13 @@ public class ServerUrlUtil {
 	public static String analysePictureUrl(String filename) {
 		return SERVER_BASE + "convert/" + filename + ".jpg";
 	}
+	
+	/**
+	 * Url for downloading the Picture. 
+	 * @param filename
+	 */
+	public static String downloadPictureUrl(String filename) {
+		return SERVER_BASE + "uploads/" + filename + ".jpg";
+	}
+	
 }
