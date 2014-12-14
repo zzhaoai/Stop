@@ -2,6 +2,9 @@ package hk.ust.stop.activity;
 
 import hk.ust.stop.adapter.CommonListAdapter;
 import hk.ust.stop.model.GoodsInformation;
+import hk.ust.stop.util.ConnectionUtil;
+import hk.ust.stop.util.JsonUtil;
+import hk.ust.stop.util.ServerUrlUtil;
 import hk.ust.stop.util.ToastUtil;
 import hk.ust.stop.widget.RefreshableView;
 import hk.ust.stop.widget.RefreshableView.PullToLoadMoreListener;
@@ -47,6 +50,8 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 	private ListView listView; // sub view 
 	private CommonListAdapter adapter; // controller
 	
+	private String keyWord;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
@@ -63,6 +68,8 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 		serverData = new ArrayList<GoodsInformation>();
 		adapterData = new ArrayList<GoodsInformation>();
 		selectedData = new ArrayList<GoodsInformation>();
+		
+		keyWord = getIntent().getStringExtra("keyWord");
 		
 	}
 	
@@ -133,16 +140,15 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 				@Override
 				public void run() {
 					
-					
-					/*String staticUrl = UrlConstant.DISHINFO_URL;
+					String staticUrl = ServerUrlUtil.SearchProductUrl(keyWord);
 					String responseData = ConnectionUtil.getFromServer(staticUrl);
-					List<GoodsInformation> goodsItems = Transfer2JsonUtil.goodsInfoJsonTransfer(responseData);*/
+					List<GoodsInformation> goodsItems = JsonUtil.tranfer2GoodsInfoList(responseData);
 					
-					List<GoodsInformation> goodsItems = new ArrayList<GoodsInformation>();
+					/*List<GoodsInformation> goodsItems = new ArrayList<GoodsInformation>();
 					
 					for (int i = 0; i < 40; i++) {
 						goodsItems.add(new GoodsInformation("name"+i,i));
-					}
+					}*/
 					
 						
 

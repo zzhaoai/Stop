@@ -37,6 +37,7 @@ import org.apache.http.params.HttpProtocolParams;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
+import android.os.Build;
 import android.util.Log;
 
 public class ConnectionUtil {
@@ -107,6 +108,11 @@ public class ConnectionUtil {
 		try {
 			url = new URL(staticUrl);
 			HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();// open connection with HttpURLConnection
+			
+			if (Build.VERSION.SDK_INT > 13) { 
+				urlConn.setRequestProperty("Connection", "close"); 
+			}
+			
 			// read server feedback
 			BufferedReader in = new BufferedReader(new InputStreamReader(urlConn.getInputStream()));// push Http request
 			String retData = null;

@@ -264,7 +264,10 @@ public class MainActivity extends Activity
 
 	@Override
 	public boolean onQueryTextSubmit(String query) {
-		Toast.makeText(this, searchView.getQuery(), Toast.LENGTH_LONG).show();
+		Intent intent = new Intent();
+		intent.setClass(MainActivity.this, SearchListActivity.class);
+		intent.putExtra("keyWord", searchView.getQuery()+"");
+		startActivity(intent);
 		return true;
 	}
 
