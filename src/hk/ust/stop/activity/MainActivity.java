@@ -3,18 +3,22 @@ package hk.ust.stop.activity;
 import hk.ust.stop.dao.BaseDaoImpl;
 import hk.ust.stop.idao.BaseDaoInterface;
 import hk.ust.stop.model.GoodsInformation;
+import hk.ust.stop.util.AccountUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -38,6 +42,8 @@ import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 public class MainActivity extends Activity 
 				implements LocationListener, OnClickListener,
@@ -73,6 +79,30 @@ public class MainActivity extends Activity
 		
 		// set map type
 		googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+		
+		
+		
+		// FOR TEST NOW
+		List<LatLng> pointsList = new ArrayList<LatLng>();
+		pointsList.add(new LatLng(37.35, 122.0));
+		pointsList.add(new LatLng(30.45, 110.0));  // North of the previous point, but at the same longitude
+        
+		pointsList.add(new LatLng(30.45, 110.0));
+		pointsList.add(new LatLng(25.45, 100.2));  // Same latitude, and 30km to the west
+        
+		pointsList.add(new LatLng(25.45, 100.2));
+		pointsList.add(new LatLng(22.35, 112.2));  // Same longitude, and 16km to the south
+        
+		pointsList.add(new LatLng(22.35, 112.2));
+		pointsList.add(new LatLng(10.35, 122.0)); // Closes the polyline.
+        PolylineOptions lineOptions = new PolylineOptions().addAll(pointsList);
+		lineOptions.width(5).color(Color.BLUE);
+		Polyline polyline = googleMap.addPolyline(lineOptions);
+        //new RouteTask().execute(pointsList,null,null);
+        
+        
+        
+        
 		
 		//insert a record to the database
 		ContentResolver resolver = getContentResolver();
@@ -292,15 +322,24 @@ public class MainActivity extends Activity
 			startActivity(intent);
 			break;
 		case 3:
-			intent.setClass(this, LoginActivity.class);
-			startActivity(intent);
-			finish();
+			if(getIntent().getBooleanExtra("isLogin", false)) {
+				// If the user has login, then logout.
+				AccountUtil.logoutUser();
+				getIntent().putExtra("isLogin", false);
+				popupWindow.dismiss();
+				initPopupWindow(false);
+			} else {
+				// If the user has not login, then jump to LoginActivity.
+				popupWindow.dismiss();
+				intent.setClass(this, LoginActivity.class);
+				startActivity(intent);
+				finish();
+			}
 
 		default:
 			break;
 		}
 		
 	}
-
 	
 }
