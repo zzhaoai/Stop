@@ -10,6 +10,7 @@ import hk.ust.stop.widget.RefreshableView;
 import hk.ust.stop.widget.RefreshableView.PullToLoadMoreListener;
 import hk.ust.stop.widget.RefreshableView.PullToRefreshListener;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -311,11 +312,16 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 		Object itemObject = listView.getItemAtPosition(position);
 		Bundle bundle = new Bundle();
 		bundle.putSerializable(GOODSINFO_KEY, (Serializable) itemObject);
-		bundle.putParcelable("picture", goodsPics.get(position));
+		//bundle.putParcelable("picture", goodsPics.get(position-1));
 		Intent intent = new Intent();
 		intent.setClass(this, GoodsInfoActivity.class);
 		intent.putExtras(bundle);
 		intent.putExtra("SerializableKey", GOODSINFO_KEY);
+		Bitmap bmp = goodsPics.get(position-1);
+		ByteArrayOutputStream baos=new ByteArrayOutputStream();  
+		bmp.compress(Bitmap.CompressFormat.PNG, 100, baos);  
+		byte [] bitmapByte =baos.toByteArray();  
+		intent.putExtra("bitmap", bitmapByte);
 		startActivity(intent);
 		
 	}
