@@ -1,5 +1,7 @@
 package hk.ust.stop.util;
 
+import hk.ust.stop.model.GoodsInformation;
+
 /**
  * This class is used to provide the url for communicate with server,
  * it just simply combine base url with parameter
@@ -44,5 +46,17 @@ public class ServerUrlUtil {
 								String email, String phone) {
 		return SERVER_BASE + "register/" + name + password
 				+ email + phone;
+	}
+	
+	
+	
+	public static String AddProductUrl(GoodsInformation goods) {
+		return SERVER_BASE + "AddProduct/" +
+				goods.getPrice() + "/" +
+				goods.getPictureName() + "/" +
+				goods.getLongitude() + "/" +
+				goods.getLatitude() + "/" +
+				goods.getGoodsName() + "/" +
+				goods.getGoodsDescription() + "/";
 	}
 }
