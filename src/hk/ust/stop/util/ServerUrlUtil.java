@@ -73,4 +73,14 @@ public class ServerUrlUtil {
 	public static String SearchProductUrl(String productName) {
 		return SERVER_BASE + "search/" + productName;
 	}
+	
+	
+	/**
+	 * Url for analysing the Picture. 
+	 * @param filename
+	 * @return The text in the picture, normally, it's the name of the product.
+	 */
+	public static String analysePictureUrl(String filename) {
+		return SERVER_BASE + "convert/" + filename + ".jpg";
+	}
 }

@@ -38,6 +38,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 
 public class ConnectionUtil {
@@ -109,6 +110,7 @@ public class ConnectionUtil {
 			url = new URL(staticUrl);
 			HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();// open connection with HttpURLConnection
 			
+			// fix bug of Android due to high version
 			if (Build.VERSION.SDK_INT > 13) { 
 				urlConn.setRequestProperty("Connection", "close"); 
 			}
@@ -135,7 +137,7 @@ public class ConnectionUtil {
 	
 	
 	@SuppressWarnings("deprecation")
-	public static void uploadFile(Bitmap bm,String fileName)
+	public static boolean uploadFile(Bitmap bm,String fileName)
     {
 		try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -163,10 +165,14 @@ public class ConnectionUtil {
                 s = s.append(sResponse);
             }
             System.out.println("Response: " + s);
+            if(!TextUtils.isEmpty(s.toString()))
+            	return true;
         } catch (Exception e) {
             // handle exception here
             Log.e(e.getClass().getName(), e.getMessage());
         }
+		
+		return false;
     }
 	
 	

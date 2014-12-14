@@ -1,7 +1,10 @@
 package hk.ust.stop.activity;
 
 import hk.ust.stop.dao.PictureDaoImpl;
+import hk.ust.stop.model.GoodsInformation;
+import hk.ust.stop.util.AccountUtil;
 import hk.ust.stop.util.ConnectionUtil;
+import hk.ust.stop.util.GoodsUtil;
 
 import java.io.File;
 import java.util.Calendar;
@@ -139,9 +142,11 @@ public class AddGoodsActivity extends Activity implements OnClickListener{
 				if(null != currentFileName)
 					dao.deleteBitmap(currentFileName);
 				
-				currentFileName = ""+DateFormat.format("yyyyMMdd_hhmmss",
+				currentFileName = AccountUtil.getLoginUser().getUserId()+ "_" +
+						DateFormat.format("yyyyMMdd_hhmmss",
 						Calendar.getInstance(Locale.CHINA));
 				
+				new Thread(runnable).start();
 			}
 		}
 	}
@@ -177,7 +182,15 @@ public class AddGoodsActivity extends Activity implements OnClickListener{
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
-						ConnectionUtil.uploadFile(currentBitmap, currentFileName);
+						// Upload the information about this product.
+						GoodsInformation goods = new GoodsInformation();
+						goods.setGoodsName(productName.getText().toString());
+						goods.setGoodsDescription(
+								productDescription.getText().toString());
+						goods.setPrice(
+								Double.parseDouble(
+								productPrice.getText().toString()));
+						GoodsUtil.uploadGoodsInformation(goods);
 					}
 				}).start();
 				/** Do some real saving work here **/
@@ -225,4 +238,32 @@ public class AddGoodsActivity extends Activity implements OnClickListener{
 		}
 	}
 	
+	
+	/**
+	 * This Runnable object is used to upload the picture to the server and 
+	 * get the analyze result from server.
+	 */
+	private Runnable runnable = new Runnable() {
+		String result;
+		@Override
+		public void run() {
+			// First, upload this picture to the server.
+			ConnectionUtil.uploadFile(currentBitmap, currentFileName);
+			// Second, call the server to analyze this picture.
+			result = GoodsUtil.analyzePicture(currentFileName);
+			if(TextUtils.isEmpty(result))
+				return;
+			
+			/** If there is a analyze result in the response string, 
+			 *  then use this result to be the product name.
+			 */
+			handler.post(new Runnable() {
+				
+				@Override
+				public void run() {
+					productName.setText(result);
+				}
+			});
+		}
+	};
 }

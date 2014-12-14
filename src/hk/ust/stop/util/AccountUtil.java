@@ -67,6 +67,10 @@ public class AccountUtil {
 	}
 	
 	
+	public static UserInformation getLoginUser() {
+		return user;
+	}
+	
 	/**
 	 * Register a new user
 	 * @param name

@@ -74,4 +74,23 @@ public class GoodsUtil {
 			return goods;
 		}
 	}
+	
+	
+	/**
+	 * Use the filename as the url to get analyse result from the server.
+	 * Notice: before calling this function, the picture should be uploaded
+	 * 		   to the server.
+	 * @param filename
+	 * @return
+	 */
+	public static String analyzePicture(String filename) {
+		String responseData = ConnectionUtil.getFromServer(
+				ServerUrlUtil.analysePictureUrl(filename));
+		
+		if(responseData.equals(EMPTY_RESPONSE) ||
+				responseData.equals(NO_MESSAGE))
+			return null;
+		
+		return JsonUtil.jsonObjectTransfer(responseData, "output").trim();
+	}
 }
