@@ -43,6 +43,7 @@
 	<string name="string_hint_productName">Input Product Name</string>
 	<string name="string_hint_productDescription">Describe product</string>
 	<string name="string_hint_productPrice">Set Price</string>
+	<string name="string_hint_address">Your Address</string>
 	<string name="string_blank_words"> </string>
     
     <!-- searchListActivity -->

@@ -111,7 +111,7 @@ public class ConnectionUtil {
 			HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();// open connection with HttpURLConnection
 			
 			// fix bug of Android due to high version
-			if (Build.VERSION.SDK_INT > 13) { 
+			if (Build.VERSION.SDK != null && Build.VERSION.SDK_INT > 13) { 
 				urlConn.setRequestProperty("Connection", "close"); 
 			}
 			

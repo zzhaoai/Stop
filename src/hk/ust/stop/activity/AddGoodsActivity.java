@@ -10,6 +10,8 @@ import java.io.File;
 import java.util.Calendar;
 import java.util.Locale;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -40,6 +42,7 @@ public class AddGoodsActivity extends Activity implements OnClickListener{
 	private EditText productName;
 	private EditText productDescription;
 	private EditText productPrice;
+	private EditText productAddress;
 	
 	private String tempPicPath;
 	private Bitmap currentBitmap;
@@ -64,6 +67,7 @@ public class AddGoodsActivity extends Activity implements OnClickListener{
 		productName = (EditText) findViewById(R.id.productName);
 		productDescription = (EditText) findViewById(R.id.productDescription);
 		productPrice = (EditText) findViewById(R.id.productPrice);
+		productAddress = (EditText) findViewById(R.id.productAddress);
 		
 		tempPicPath = dao.getDirectory() + "temp.jpg";
 
@@ -190,6 +194,17 @@ public class AddGoodsActivity extends Activity implements OnClickListener{
 						goods.setPrice(
 								Double.parseDouble(
 								productPrice.getText().toString()));
+						goods.setGoodsAddress(
+								productAddress.getText().toString());
+						LatLng location = AccountUtil.getCurrentLocation();
+						if(null != location) {
+							goods.setLatitude(location.latitude);
+							goods.setLongitude(location.longitude);
+						} else {
+							goods.setLatitude(0);
+							goods.setLongitude(0);
+						}
+						goods.setPictureName(currentFileName);
 						GoodsUtil.uploadGoodsInformation(goods);
 					}
 				}).start();
@@ -197,7 +212,7 @@ public class AddGoodsActivity extends Activity implements OnClickListener{
 				dao.saveImageToSdcard(currentBitmap, currentFileName);
 				resetActivity();
 			} else {
-				Toast.makeText(this, productPrice.getText().toString(), 
+				Toast.makeText(this, "Please complete the blank", 
 						Toast.LENGTH_SHORT).show();
 			}
 			
@@ -216,6 +231,7 @@ public class AddGoodsActivity extends Activity implements OnClickListener{
 		productName.setText("");
 		productDescription.setText("");
 		productPrice.setText("");
+		productAddress.setText("");
 		currentBitmap = null;
 		currentFileName = null;
 		imageView.setImageResource(R.drawable.ic_launcher);
@@ -231,7 +247,8 @@ public class AddGoodsActivity extends Activity implements OnClickListener{
 				null == currentFileName ||
 				TextUtils.isEmpty(productName.getText().toString()) ||
 				TextUtils.isEmpty(productDescription.getText().toString()) ||
-				TextUtils.isEmpty(productPrice.getText().toString())) {
+				TextUtils.isEmpty(productPrice.getText().toString()) ||
+				TextUtils.isEmpty(productAddress.getText().toString())) {
 			return false;
 		} else {
 			return true;
