@@ -47,6 +47,7 @@ public class GoodsInfoProvider extends ContentProvider{
 		userProjectionMap.put(TableMetaData.LATITUDE, TableMetaData.LATITUDE);
 		userProjectionMap.put(TableMetaData.PRICE, TableMetaData.PRICE);
 		userProjectionMap.put(TableMetaData.GOODS_NAME, TableMetaData.GOODS_NAME);
+		userProjectionMap.put(TableMetaData.GOODS_ADDRESS, TableMetaData.GOODS_ADDRESS);
 		userProjectionMap.put(TableMetaData.GOODS_DESCRIPTION, TableMetaData.GOODS_DESCRIPTION);
 		
 	}

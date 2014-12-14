@@ -19,6 +19,7 @@ public class StopDatabaseHelper extends SQLiteOpenHelper{
 				  ",LATITUDE long not null" +
 				  ",PRICE double not null" +
 				  ",GOODS_NAME varchar(100)" +
+				  ",GOODS_ADDRESS varchar(100)" +
 				  ",GOODS_DESCRIPTION varchar(300) )";
 	
 	

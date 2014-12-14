@@ -77,7 +77,7 @@ public class MainActivity extends Activity
 		//insert a record to the database
 		ContentResolver resolver = getContentResolver();
 		BaseDaoInterface dao = new BaseDaoImpl(resolver);
-		GoodsInformation goods = new GoodsInformation(1,"pic",89.1,26.3,45.5,"book","worth to read");
+		GoodsInformation goods = new GoodsInformation(1,"pic",89.1,26.3,45.5,"book","ust library","worth to read");
 		dao.insert(null,goods,1);
 		
 		// To listen action whenever we click on the map
@@ -90,7 +90,7 @@ public class MainActivity extends Activity
 				BaseDaoInterface dao = new BaseDaoImpl(resolver);
 				ArrayList<GoodsInformation> list = dao.queryAllRecord(null,1);
 				if(list != null && list.size() != 0) {
-					Toast.makeText(MainActivity.this, list.get(0).getGoodsDescription(), Toast.LENGTH_LONG).show();
+					Toast.makeText(MainActivity.this, list.get(0).getGoodsAddress(), Toast.LENGTH_LONG).show();
 				}
 				
 			}

@@ -57,6 +57,8 @@ public class GoodsUtil {
 					JsonUtil.jsonObjectTransfer(responseData, "pictureName"));
 			goods.setGoodsDescription(
 					JsonUtil.jsonObjectTransfer(responseData, "goodsDescription"));
+			goods.setGoodsAddress(
+					JsonUtil.jsonObjectTransfer(responseData, "address"));
 			goods.setLatitude(
 					Double.parseDouble(
 					JsonUtil.jsonObjectTransfer(responseData, "latitude")));

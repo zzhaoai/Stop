@@ -36,6 +36,7 @@ public class BaseDaoImpl implements BaseDaoInterface{
 		values.put(TableMetaData.LATITUDE, info.getLatitude());
 		values.put(TableMetaData.PRICE, info.getPrice());
 		values.put(TableMetaData.GOODS_NAME, info.getGoodsName());
+		values.put(TableMetaData.GOODS_ADDRESS, info.getGoodsAddress());
 		values.put(TableMetaData.GOODS_DESCRIPTION, info.getGoodsDescription());
 		
 		Uri uri = resolver.insert(TableMetaData.CONTENT_URI, values);
@@ -114,6 +115,7 @@ public class BaseDaoImpl implements BaseDaoInterface{
 			goods.setLongitude(cursor.getDouble(cursor.getColumnIndex(TableMetaData.LONGITUDE)));
 			goods.setLatitude(cursor.getDouble(cursor.getColumnIndex(TableMetaData.LATITUDE)));
 			goods.setPrice(cursor.getDouble(cursor.getColumnIndex(TableMetaData.PRICE)));
+			goods.setGoodsAddress(cursor.getString(cursor.getColumnIndex(TableMetaData.GOODS_ADDRESS)));
 			goods.setGoodsDescription(cursor.getString(cursor.getColumnIndex(TableMetaData.GOODS_DESCRIPTION)));
 			list.add(goods);
 		}

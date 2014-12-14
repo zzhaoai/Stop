@@ -28,6 +28,7 @@ public class GoodsInfoProviderMetaData {
 		public final static String LATITUDE = "LATITUDE";
 		public final static String PRICE = "PRICE";
 		public final static String GOODS_NAME = "GOODS_NAME";
+		public final static String GOODS_ADDRESS = "GOODS_ADDRESS";
 		public final static String GOODS_DESCRIPTION = "GOODS_DESCRIPTION";
 		public final static String DEFAULT_SORT_ORDER = "_id desc";
 	}

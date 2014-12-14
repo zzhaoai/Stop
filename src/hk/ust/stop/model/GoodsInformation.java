@@ -13,16 +13,19 @@ public class GoodsInformation implements Serializable{
 	private double	price;
 	private String	goodsName;
 	private String  goodsDescription;
+	private String  goodsAddress;
 	private boolean selected;
 	
 	public GoodsInformation(long goodsId, String pictureName, double longitude,
-			double latitude, double price, String name, String desc) {
+			double latitude, double price, String name, 
+			String address, String desc) {
 		this.goodsId = goodsId;
 		this.pictureName = pictureName;
 		this.longitude = longitude;
 		this.latitude = latitude;
 		this.price = price;
 		this.goodsName = name;
+		this.goodsAddress = address;
 		this.goodsDescription = desc;
 	}
 	
@@ -83,6 +86,14 @@ public class GoodsInformation implements Serializable{
 	}
 	public void setSelected(boolean selected) {
 		this.selected = selected;
+	}
+
+	public String getGoodsAddress() {
+		return goodsAddress;
+	}
+
+	public void setGoodsAddress(String goodsAddress) {
+		this.goodsAddress = goodsAddress;
 	}
 	
 }
