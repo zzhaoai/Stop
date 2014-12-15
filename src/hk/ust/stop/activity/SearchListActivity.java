@@ -66,6 +66,13 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 
+		goodsPics = new ArrayList<Bitmap>();
+		serverData = new ArrayList<GoodsInformation>();
+		adapterData = new ArrayList<GoodsInformation>();
+		selectedData = new ArrayList<GoodsInformation>();
+		
+		keyWord = getIntent().getStringExtra("keyWord");
+		
 		// initial GUI
 		initView();
 		// bind events
@@ -74,13 +81,6 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 		initHandler();
 		// get data from server
 		getDataFromServer();
-		
-		goodsPics = new ArrayList<Bitmap>();
-		serverData = new ArrayList<GoodsInformation>();
-		adapterData = new ArrayList<GoodsInformation>();
-		selectedData = new ArrayList<GoodsInformation>();
-		
-		keyWord = getIntent().getStringExtra("keyWord");
 		
 	}
 	
