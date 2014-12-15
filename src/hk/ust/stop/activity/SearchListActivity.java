@@ -1,7 +1,11 @@
 package hk.ust.stop.activity;
 
 import hk.ust.stop.adapter.CommonListAdapter;
+import hk.ust.stop.dao.BaseDaoImpl;
+import hk.ust.stop.idao.BaseDaoInterface;
 import hk.ust.stop.model.GoodsInformation;
+import hk.ust.stop.model.UserInformation;
+import hk.ust.stop.util.AccountUtil;
 import hk.ust.stop.util.ConnectionUtil;
 import hk.ust.stop.util.JsonUtil;
 import hk.ust.stop.util.ServerUrlUtil;
@@ -417,6 +421,22 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 		
 		// save selected items to local database like contentProvider
 		String nums = setSelectedData();
+		
+		boolean isLogin = AccountUtil.isLogin();
+		UserInformation currentUser;
+		
+		if(isLogin){
+			currentUser = AccountUtil.getLoginUser();
+		}else{
+			currentUser = null;
+		}
+		
+		BaseDaoInterface dao = new BaseDaoImpl(getContentResolver());
+		
+		for(GoodsInformation singleGoods : selectedData){
+			// the third parameter is set to 0 in this version
+			dao.insert(currentUser, singleGoods, 0);
+		}
 		
 		// test
 		ToastUtil.showToast(this, nums);

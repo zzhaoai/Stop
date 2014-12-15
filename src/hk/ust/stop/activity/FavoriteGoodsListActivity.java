@@ -1,7 +1,11 @@
 package hk.ust.stop.activity;
 
 import hk.ust.stop.adapter.CommonListAdapter;
+import hk.ust.stop.dao.BaseDaoImpl;
+import hk.ust.stop.idao.BaseDaoInterface;
 import hk.ust.stop.model.GoodsInformation;
+import hk.ust.stop.model.UserInformation;
+import hk.ust.stop.util.AccountUtil;
 import hk.ust.stop.util.ToastUtil;
 import hk.ust.stop.widget.RefreshableView;
 import hk.ust.stop.widget.RefreshableView.PullToLoadMoreListener;
@@ -150,24 +154,23 @@ public class FavoriteGoodsListActivity extends ListActivity implements OnItemCli
 			@Override
 			public void run() {
 
-				/*
-				 *  get data from content provider (local database)
-				 *  
-				 *  
-				 *  
-				 */
-
+				// get data from contentProvider (local database)
+				boolean isLogin = AccountUtil.isLogin();
+				UserInformation currentUser;
 				
-				// just for test
-				List<GoodsInformation> goodsItems = new ArrayList<GoodsInformation>();
-
-				for (int i = 0; i < 40; i++) {
-					goodsItems.add(new GoodsInformation("name" + i, i));
+				if(isLogin){
+					currentUser = AccountUtil.getLoginUser();
+				}else{
+					currentUser = null;
 				}
-
+				
+				BaseDaoInterface dao = new BaseDaoImpl(getContentResolver());
+				List<GoodsInformation> dbData = new ArrayList<GoodsInformation>();
+				dbData = dao.queryAllRecord(currentUser, 0);
+				
 				Message message = new Message();
 				Bundle bundle = new Bundle();
-				bundle.putSerializable(GOODSINFO_KEY, (Serializable) goodsItems);
+				bundle.putSerializable(GOODSINFO_KEY, (Serializable) dbData);
 				message.setData(bundle);
 				message.what = 1;
 				handler.sendMessage(message);
@@ -186,16 +189,20 @@ public class FavoriteGoodsListActivity extends ListActivity implements OnItemCli
 			@Override
 			public void run() {
 
-				/*
-				 * // delete data in content provider (local database)
-				 * 
-				 * 
-				 * 
-				 * 
-				 * 
-				 * // if delete successfully according to responseData :
-				 * Toast("successfully"); else : Toast("failed")
-				 */
+				boolean isLogin = AccountUtil.isLogin();
+				UserInformation currentUser;
+				
+				if(isLogin){
+					currentUser = AccountUtil.getLoginUser();
+				}else{
+					currentUser = null;
+				}
+				
+				BaseDaoInterface dao = new BaseDaoImpl(getContentResolver());
+				
+				for(GoodsInformation singleData : selectedData){
+					dao.deleteByUserAndGoodsId(currentUser, singleData);
+				}
 
 				String[] temp = nums.split(" ");
 				int[] deleteNums = new int[temp.length];
@@ -408,7 +415,7 @@ public class FavoriteGoodsListActivity extends ListActivity implements OnItemCli
 		// delete selected items and keep the same with Server synchronized
 		String nums = setSelectedData();
 
-		// Thread to communicate with Server
+		// Thread to delete data in local database
 		deleteDataInLocal(nums);
 
 		// test
