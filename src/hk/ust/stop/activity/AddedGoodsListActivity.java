@@ -2,7 +2,10 @@ package hk.ust.stop.activity;
 
 import hk.ust.stop.adapter.CommonListAdapter;
 import hk.ust.stop.model.GoodsInformation;
+import hk.ust.stop.model.UserInformation;
+import hk.ust.stop.util.AccountUtil;
 import hk.ust.stop.util.ConnectionUtil;
+import hk.ust.stop.util.JsonUtil;
 import hk.ust.stop.util.ServerUrlUtil;
 import hk.ust.stop.util.ToastUtil;
 import hk.ust.stop.widget.RefreshableView;
@@ -164,27 +167,25 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 		 new Thread(new Runnable() {
 				@Override
 				public void run() {
-					
-					
-					/*String staticUrl = UrlConstant.DISHINFO_URL;
-					String responseData = ConnectionUtil.getFromServer(staticUrl);
-					List<GoodsItem> dishInfos = Transfer2JsonUtil.dishInfoJsonTransfer(responseData);*/
-					
-					List<GoodsInformation> goodsItems = new ArrayList<GoodsInformation>();
-					
-					for (int i = 0; i < 40; i++) {
-						goodsItems.add(new GoodsInformation("name"+i,i));
+					boolean isLogin = AccountUtil.isLogin();
+					UserInformation currentUser = null;
+					if(isLogin){
+						currentUser = AccountUtil.getLoginUser();
+						long userId = currentUser.getUserId();
+						String staticUrl = ServerUrlUtil.GetProductByUserId(userId); 
+						String responseData = ConnectionUtil.getFromServer(staticUrl);
+						List<GoodsInformation> goodsItems = JsonUtil.tranfer2GoodsInfoList(responseData);
+						Message message=new Message();
+						Bundle bundle = new Bundle();
+						bundle.putSerializable(GOODSINFO_KEY, (Serializable) goodsItems);
+						message.setData(bundle);
+						message.what = 1;
+						handler.sendMessage(message);
+					}else{
+						Message message = new Message();
+						message.what = 2;
+						handler.sendMessage(message);
 					}
-					
-						
-
-					Message message=new Message();
-					Bundle bundle = new Bundle();
-					bundle.putSerializable(GOODSINFO_KEY, (Serializable) goodsItems);
-					message.setData(bundle);
-					message.what = 1;
-					handler.sendMessage(message);
-					
 				}
 		}).start();
 		
@@ -235,18 +236,14 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 				@Override
 				public void run() {
 					
-					
-					/*
-					// getUserId before communicating with server
-					SharedPreferences preferences = getSharedPreferences("userInfo", 0);
-					int userId = preferences.getInt("userId", 123);
-					
-					String staticUrl = UrlConstant.DISHINFO_URL;
-					String responseData = ConnectionUtil.post2Server(staticUrl, sendJsonMsg);
-					
-					// if delete successfully according to responseData : Toast("successfully"); else : Toast("failed")
-					*/
-					
+					String goodsIdList = "";
+					for(GoodsInformation singleData : selectedData){
+						goodsIdList = goodsIdList + singleData.getGoodsId() + ";";
+					}
+					goodsIdList = goodsIdList.substring(0, goodsIdList.length()-1);
+					String staticUrl = ServerUrlUtil.deleteProductUrl(goodsIdList);
+					String responseData = ConnectionUtil.getFromServer(staticUrl);
+										
 					String[] temp = nums.split(" ");
 					int[] deleteNums = new int[temp.length]; 
 					for(int i=0;i<temp.length;i++){

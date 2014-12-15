@@ -2,6 +2,7 @@ package hk.ust.stop.activity;
 
 import hk.ust.stop.adapter.CommonListAdapter;
 import hk.ust.stop.dao.BaseDaoImpl;
+import hk.ust.stop.dao.PictureDaoImpl;
 import hk.ust.stop.idao.BaseDaoInterface;
 import hk.ust.stop.model.GoodsInformation;
 import hk.ust.stop.model.UserInformation;
@@ -138,6 +139,7 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 				case 3:
 					// download pics successfully
 					goodsPics = (List<Bitmap>) bundle.getSerializable(GOODSPICS_KEY);
+					ToastUtil.showToast(SearchListActivity.this, "finish!!");
 					break;
 				case 4:
 					// download pics unsuccessfully
@@ -321,6 +323,8 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 		intent.setClass(this, GoodsInfoActivity.class);
 		intent.putExtras(bundle);
 		intent.putExtra("SerializableKey", GOODSINFO_KEY);
+		
+		// Change the bitmap to byte array.
 		Bitmap bmp = goodsPics.get(position-1);
 		ByteArrayOutputStream baos=new ByteArrayOutputStream();  
 		bmp.compress(Bitmap.CompressFormat.PNG, 100, baos);  
@@ -433,10 +437,16 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 		
 		BaseDaoInterface dao = new BaseDaoImpl(getContentResolver());
 		
+		// Define the ArrayList to store the name of the picture.
+		ArrayList<String> names = new ArrayList<String>();
+		
 		for(GoodsInformation singleGoods : selectedData){
 			// the third parameter is set to 0 in this version
 			dao.insert(currentUser, singleGoods, 0);
+			names.add(singleGoods.getPictureName());
 		}
+		
+		PictureDaoImpl.getInstance().cachePictureToSdCard(goodsPics, names);
 		
 		// test
 		ToastUtil.showToast(this, nums);

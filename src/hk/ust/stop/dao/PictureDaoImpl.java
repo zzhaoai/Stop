@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Environment;
 
 /**
@@ -68,6 +71,27 @@ public class PictureDaoImpl {
 	}
 	
 	
+	/**
+	 * Cache the picture to SD card. Before doing this, we need to compare the size of this two 
+	 * parameters. Only if the size are equal, would the picture be stored.
+	 * @param goodsPics
+	 * @param names
+	 */
+	public void cachePictureToSdCard(List<Bitmap> goodsPics, ArrayList<String> names) {
+		if(goodsPics.size() != names.size())
+			return;
+		
+		for(int index = 0; index < goodsPics.size(); index++) {
+			saveImageToSdcard(goodsPics.get(index), names.get(index));
+		}
+	}
+	
+	
+	/**
+	 * Save a picture of the product to SD card in JPG format.
+	 * @param bmp
+	 * @param fileName
+	 */
 	public void saveImageToSdcard(Bitmap bmp, String fileName) {
 		if(bmp == null)
 			return;
@@ -75,6 +99,10 @@ public class PictureDaoImpl {
 		File file = new File(getDirectory()+fileName+".jpg");
 		
 		try {
+			// If the file already exist, then delete it and save the new picture.
+			if(file.exists())
+				file.delete();
+			
 			file.createNewFile();
 			OutputStream outputStream = new FileOutputStream(file);
 			bmp.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
@@ -84,6 +112,28 @@ public class PictureDaoImpl {
 			e.printStackTrace();
 		}
 	}
+	
+	
+	/**
+	 * Use the name in the ArrayList to get pictures from SD card.
+	 * @param names
+	 * @return
+	 */
+	public ArrayList<Bitmap> getImageFromSdCard(ArrayList<String> names) {
+		ArrayList<Bitmap> pictures = new ArrayList<Bitmap>();
+		for(int index = 0; index < names.size(); index++) {
+			String path = getDirectory() + names.get(index);
+			File file = new File(path);
+			if(file.exists())
+				pictures.add(BitmapFactory.decodeFile(path));
+			else {
+				pictures.add(null);
+			}
+		}
+		
+		return pictures;
+	}
+	
 	
 	public boolean deleteBitmap(String fileName) {
 		File file = new File(getDirectory()+fileName+".jpg");

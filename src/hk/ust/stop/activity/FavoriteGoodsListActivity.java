@@ -2,6 +2,7 @@ package hk.ust.stop.activity;
 
 import hk.ust.stop.adapter.CommonListAdapter;
 import hk.ust.stop.dao.BaseDaoImpl;
+import hk.ust.stop.dao.PictureDaoImpl;
 import hk.ust.stop.idao.BaseDaoInterface;
 import hk.ust.stop.model.GoodsInformation;
 import hk.ust.stop.model.UserInformation;
@@ -11,6 +12,7 @@ import hk.ust.stop.widget.RefreshableView;
 import hk.ust.stop.widget.RefreshableView.PullToLoadMoreListener;
 import hk.ust.stop.widget.RefreshableView.PullToRefreshListener;
 
+import java.io.ByteArrayOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.List;
 import android.annotation.SuppressLint;
 import android.app.ListActivity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -45,6 +48,7 @@ public class FavoriteGoodsListActivity extends ListActivity implements OnItemCli
 	// max records shown on one page
 	private int batchSize = 10;
 
+	private List<Bitmap> goodsPics;
 	private List<GoodsInformation> selectedData;
 	private List<GoodsInformation> localData;
 	private List<GoodsInformation> adapterData; // model
@@ -167,6 +171,14 @@ public class FavoriteGoodsListActivity extends ListActivity implements OnItemCli
 				BaseDaoInterface dao = new BaseDaoImpl(getContentResolver());
 				List<GoodsInformation> dbData = new ArrayList<GoodsInformation>();
 				dbData = dao.queryAllRecord(currentUser, 0);
+				
+				// Define ArrayList to store the picture
+				ArrayList<String> names = new ArrayList<String>();
+				for(GoodsInformation goods : dbData) {
+					names.add(goods.getPictureName());
+				}
+				// Get pictures from SD card.
+				goodsPics = PictureDaoImpl.getInstance().getImageFromSdCard(names);
 				
 				Message message = new Message();
 				Bundle bundle = new Bundle();
@@ -320,6 +332,14 @@ public class FavoriteGoodsListActivity extends ListActivity implements OnItemCli
 		intent.setClass(this, GoodsInfoActivity.class);
 		intent.putExtras(bundle);
 		intent.putExtra("SerializableKey", GOODSINFO_KEY);
+		
+		// Change the bitmap to byte array.
+		Bitmap bmp = goodsPics.get(position-1);
+		ByteArrayOutputStream baos=new ByteArrayOutputStream();  
+		bmp.compress(Bitmap.CompressFormat.PNG, 100, baos);  
+		byte [] bitmapByte =baos.toByteArray();  
+		intent.putExtra("bitmap", bitmapByte);
+		
 		startActivity(intent);
 
 	}

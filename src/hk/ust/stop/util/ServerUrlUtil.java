@@ -62,7 +62,8 @@ public class ServerUrlUtil {
 				goods.getLatitude() + "/" +
 				goods.getGoodsName() + "/" +
 				goods.getGoodsDescription() + "/" +
-				goods.getGoodsAddress();
+				goods.getGoodsAddress() + "/" +
+				(null == AccountUtil.getLoginUser()?"0":AccountUtil.getLoginUser().getUserId());
 	}
 	
 	
@@ -73,6 +74,15 @@ public class ServerUrlUtil {
 	 */
 	public static String SearchProductUrl(String productName) {
 		return SERVER_BASE + "search/" + productName;
+	}
+	
+	/**
+	 * Url for getting all products information by userId
+	 * @param userId
+	 * @return
+	 */
+	public static String GetProductByUserId(Long userId){
+		return SERVER_BASE + "get/" + userId;
 	}
 	
 	
@@ -91,6 +101,15 @@ public class ServerUrlUtil {
 	 */
 	public static String downloadPictureUrl(String filename) {
 		return SERVER_BASE + "uploads/" + filename + ".jpg";
+	}
+	
+	/**
+	 * Url for deleting a product in the server.
+	 * parameter format : .../delete/1;3;5
+	 * @return
+	 */
+	public static String deleteProductUrl(String goodsIdList){
+		return SERVER_BASE + "delete/" + goodsIdList;
 	}
 	
 }
