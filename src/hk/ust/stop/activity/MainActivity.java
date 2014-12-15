@@ -4,6 +4,7 @@ import hk.ust.stop.dao.BaseDaoImpl;
 import hk.ust.stop.idao.BaseDaoInterface;
 import hk.ust.stop.model.GoodsInformation;
 import hk.ust.stop.util.AccountUtil;
+import hk.ust.stop.util.ToastUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -317,15 +318,27 @@ public class MainActivity extends Activity
 			startActivity(intent);
 			break;
 		case 1:
-			intent.setClass(this, AddGoodsActivity.class);
-			startActivity(intent);
+			if(!AccountUtil.isLogin()) {
+				// If the user hasn't login, give him a hint.
+				ToastUtil.showToast(this, "please login!");
+			} else {
+				// If the user has login, then jump to AddGoodsActivity.
+				intent.setClass(this, AddGoodsActivity.class);
+				startActivity(intent);
+			}
 			break;
 		case 2:
-			intent.setClass(this, AddedGoodsListActivity.class);
-			startActivity(intent);
+			if(!AccountUtil.isLogin()) {
+				// If the user hasn't login, give him a hint.
+				ToastUtil.showToast(this, "please login!");
+			} else {
+				// If the user has login, then jump to AddedGoodsListActivity
+				intent.setClass(this, AddedGoodsListActivity.class);
+				startActivity(intent);
+			}
 			break;
 		case 3:
-			if(getIntent().getBooleanExtra("isLogin", false)) {
+			if(AccountUtil.isLogin()) {
 				// If the user has login, then logout.
 				AccountUtil.logoutUser();
 				getIntent().putExtra("isLogin", false);
