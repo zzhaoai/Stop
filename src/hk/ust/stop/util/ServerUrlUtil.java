@@ -62,7 +62,8 @@ public class ServerUrlUtil {
 				goods.getLatitude() + "/" +
 				goods.getGoodsName() + "/" +
 				goods.getGoodsDescription() + "/" +
-				goods.getGoodsAddress();
+				goods.getGoodsAddress() + "/" +
+				(null == AccountUtil.getLoginUser()?"0":AccountUtil.getLoginUser().getUserId());
 	}
 	
 	
