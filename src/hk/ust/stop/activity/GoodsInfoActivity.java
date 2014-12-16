@@ -20,6 +20,7 @@ public class GoodsInfoActivity extends Activity {
 	private TextView goodsName;
 	private TextView goodsPrice;
 	private TextView goodsPlace;
+	private TextView goodsDescription;
 	private Button returnToSearchList;
 	
 	private GoodsInformation goodsItem;
@@ -50,11 +51,13 @@ public class GoodsInfoActivity extends Activity {
 		goodsName = (TextView) findViewById(R.id.goodsNameItem);
 		goodsPrice = (TextView) findViewById(R.id.goodsPriceItem);
 		goodsPlace = (TextView) findViewById(R.id.goodsPlaceItem);
+		goodsDescription = (TextView) findViewById(R.id.goodsDescriptionItem);
 		returnToSearchList = (Button) findViewById(R.id.returnToSearchList);
 		
 		goodsName.setText(goodsItem.getGoodsName());
 		goodsPrice.setText(goodsItem.getPrice()+"HKD");
-		goodsPlace.setText("place");
+		goodsPlace.setText(goodsItem.getGoodsAddress());
+		goodsDescription.setText(goodsItem.getGoodsDescription());
 
 		if(null != goodsPic) {
 			//goodsPic = scaleDownBitmap(goodsPic, 100);
