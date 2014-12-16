@@ -120,13 +120,19 @@
             android:inputType="phone"
             android:hint="@string/string_hint_username"/>
     </LinearLayout>
-    
-    <Button 
-        android:id="@+id/button_register"
+
+    <TextView
+        android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="      " />
+    
+    <Button
+        android:id="@+id/button_register"
+        android:layout_width="186dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="@string/string_register_button"
-        android:background="@drawable/save_button_selector" />
+        android:background="@drawable/save_button_selector"
+        android:text="@string/string_register_button" />
     
 </LinearLayout>

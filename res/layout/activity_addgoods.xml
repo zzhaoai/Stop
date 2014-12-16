@@ -8,96 +8,166 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="hk.ust.stop.activity.AddGoodsActivity" >
 
-    <ScrollView 
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:layout_marginBottom="10dp"
-	    android:scrollbars="none">
-    
-<LinearLayout 
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:layout_marginTop="20dp"
-    android:layout_marginBottom="20dp"
-    android:orientation="vertical"
-    tools:context="${relativePackage}.${activityClass}" >
+    <Space
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/scrollView1"
+        android:layout_alignTop="@+id/scrollView1"
+        android:layout_marginLeft="122dp" />
 
-	<ImageView 
-	    android:id="@+id/imageView"
-	    android:layout_width="200sp"
-	    android:layout_height="200sp"
-	    android:src="@drawable/ic_launcher"/>
-	
-	<!-- Capture picture button -->
-	<Button 
-        android:id="@+id/captureButton"
+    <ScrollView
+        android:id="@+id/scrollView1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/take_picture" 
-        android:background="@drawable/save_button_selector"/>
-	
-	<!-- Delete picture button -->
-	<Button 
-        android:id="@+id/deleteButton"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/delete"
-        android:background="@drawable/delete_button_selector" />
-	
-	<EditText
-	    android:id="@+id/productName"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:hint="@string/string_hint_productName"/>
-	
-	<EditText
-	    android:id="@+id/productDescription"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:hint="@string/string_hint_productDescription"/>
-	
-	<EditText
-	    android:id="@+id/productPrice"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:hint="@string/string_hint_productPrice"
-	    android:inputType="numberDecimal"/>
-	
-	<EditText
-	    android:id="@+id/productAddress"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:hint="@string/string_hint_address"
-	    android:inputType="text"/>
-	
-	<LinearLayout 
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:orientation="horizontal">
-	    
-	    <!-- Reset Button -->
-	    <Button 
-	        android:id="@+id/resetButton"
-	        android:layout_weight="1"
-	        android:layout_width="0dp"
-	        android:layout_height="wrap_content"
-	        android:text="@string/string_reset"
-	        android:background="@drawable/delete_button_selector" />
-	    
-	    <Button
-	        android:id="@+id/saveButton"
-	        android:layout_weight="1"
-	        android:layout_width="0dp"
-	        android:layout_height="wrap_content"
-	        android:text="@string/string_save" 
-	        android:background="@drawable/save_button_selector" />
-	    
-	</LinearLayout>
-	
-	<TextView
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"/>
-</LinearLayout>
-</ScrollView>
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:scrollbars="none" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:layout_marginTop="20dp"
+            android:orientation="vertical"
+            tools:context="${relativePackage}.${activityClass}" >
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="    " />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:id="@+id/TextView02"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.76"
+                    android:text="      " />
+
+                <ImageView
+                    android:id="@+id/imageView"
+                    android:layout_width="134dp"
+                    android:layout_height="134dp"
+                    android:layout_weight="0.58"
+                    android:src="@drawable/ic_launcher" />
+
+                <TextView
+                    android:id="@+id/TextView01"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.76"
+                    android:text="      " />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="    " />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+
+                <Button
+                    android:id="@+id/captureButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.76"
+                    android:background="@drawable/save_button_selector"
+                    android:text="@string/take_picture" />
+
+                <TextView
+                    android:id="@+id/textView1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="      " />
+
+                <Button
+                    android:id="@+id/deleteButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.33"
+                    android:background="@drawable/delete_button_selector"
+                    android:text="@string/delete" />
+            </LinearLayout>
+
+            <EditText
+                android:id="@+id/productName"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/string_hint_productName" >
+
+                <requestFocus />
+            </EditText>
+
+            <EditText
+                android:id="@+id/productDescription"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/string_hint_productDescription" />
+
+            <EditText
+                android:id="@+id/productPrice"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/string_hint_productPrice"
+                android:inputType="numberDecimal" />
+
+            <EditText
+                android:id="@+id/productAddress"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/string_hint_address"
+                android:inputType="text" />
+
+            <Space
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="    " />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="    " />
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+
+                <Button
+                    android:id="@+id/resetButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/delete_button_selector"
+                    android:text="@string/string_reset" />
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="     " />
+
+                <Button
+                    android:id="@+id/saveButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/save_button_selector"
+                    android:text="@string/string_save" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
 
 </RelativeLayout>

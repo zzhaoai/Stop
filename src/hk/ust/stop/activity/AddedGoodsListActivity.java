@@ -371,7 +371,7 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 		Object itemObject = listView.getItemAtPosition(position);
 		Bundle bundle = new Bundle();
 		bundle.putSerializable(GOODSINFO_KEY, (Serializable) itemObject);
-		bundle.putParcelable("picture", goodsPics.get(position-1));
+		//bundle.putParcelable("picture", goodsPics.get(position-1));
 		Intent intent = new Intent();
 		intent.setClass(this, GoodsInfoActivity.class);
 		intent.putExtras(bundle);
