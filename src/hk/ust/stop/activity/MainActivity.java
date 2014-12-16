@@ -221,7 +221,7 @@ OnQueryTextListener, OnItemClickListener {
 			googleMap.clear();
 
 			// Zooming to our current location with zoom level 17.0f
-			googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 17f));
+			googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 16f));
 
 
 			//test-----------------
@@ -263,7 +263,7 @@ OnQueryTextListener, OnItemClickListener {
 				allPoints = null;
 			}
 
-			if(allPoints != null && !allPoints.isEmpty() && location_old != position){
+			if(allPoints != null && !allPoints.isEmpty()){
 				PolylineOptions lineOptions = new PolylineOptions().addAll(allPoints);
 				lineOptions.width(5).color(Color.BLUE);
 				Polyline polyline = googleMap.addPolyline(lineOptions);

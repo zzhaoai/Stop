@@ -7,21 +7,31 @@ import hk.ust.stop.idao.BaseDaoInterface;
 import hk.ust.stop.model.GoodsInformation;
 import hk.ust.stop.model.UserInformation;
 import hk.ust.stop.util.AccountUtil;
+import hk.ust.stop.util.ConnectionUtil;
+import hk.ust.stop.util.JsonUtil;
+import hk.ust.stop.util.ServerUrlUtil;
 import hk.ust.stop.util.ToastUtil;
 import hk.ust.stop.widget.RefreshableView;
 import hk.ust.stop.widget.RefreshableView.PullToLoadMoreListener;
 import hk.ust.stop.widget.RefreshableView.PullToRefreshListener;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import android.annotation.SuppressLint;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.view.LayoutInflater;
@@ -48,6 +58,7 @@ public class FavoriteGoodsListActivity extends ListActivity implements OnItemCli
 	// max records shown on one page
 	private int batchSize = 10;
 
+	private List<LatLng> goodsPoints;
 	private List<Bitmap> goodsPics;
 	private List<GoodsInformation> selectedData;
 	private List<GoodsInformation> localData;
@@ -442,23 +453,57 @@ public class FavoriteGoodsListActivity extends ListActivity implements OnItemCli
 		ToastUtil.showToast(this, nums);
 
 	}
+	private  void getRouteFromServer(final List<LatLng> points){
 
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				String staticUrl = ServerUrlUtil.getRouteUrl(points);
+				String responseData = ConnectionUtil.getFromServer(staticUrl);
+				goodsPoints = JsonUtil.transfer2RoutePointsList(responseData);
+				
+				try{
+					File file = new File(Environment.getExternalStorageDirectory() + File.separator + "test.txt");
+					
+						FileWriter fw = new FileWriter( file );
+						BufferedWriter bw = new BufferedWriter( fw );
+						for(LatLng str: goodsPoints) {
+							String data =  str.latitude+","+str.longitude+"\n";
+							bw.write(data);
+						}
+						bw.close();		     
+					
+				}
+				catch(Exception e )
+				{
+				}
+				
+			}
+		}).start();
+		//return goodsPoints;
+	}
 	/**
 	 * bind onClickListener for showOnMap Button
 	 * @param view
 	 */
-	public void showOnMapOnClickListener(View view) {
-
+	public void showOnMapOnClickListener(View view){
 		// upload selected items to server and get optimized route
-		String nums = setSelectedData();
-		
-		// test
-		ToastUtil.showToast(this, nums);
-		
+		List<LatLng> locationPoints = new ArrayList<LatLng>();
+		Iterator<GoodsInformation> iterator = selectedData.iterator();
+		ToastUtil.showToast(getApplicationContext(), ""+selectedData);
+		while(iterator.hasNext()){
+			GoodsInformation goodsItem = iterator.next();
+			ToastUtil.showToast(getApplicationContext(), ""+goodsItem.getLongitude());
+			LatLng point = new LatLng(goodsItem.getLongitude(),goodsItem.getLatitude());
+			locationPoints.add(point);
+		}
 
-		// jump to MainActivity with optimized route
+		getRouteFromServer(locationPoints);
+		
 		Intent intent = new Intent(this, MainActivity.class);
-		startActivity(intent);
+		//intent.putExtras(bundle);
+		FavoriteGoodsListActivity.this.setResult(RESULT_OK, intent);
+		FavoriteGoodsListActivity.this.finish();
 
 	}
 
