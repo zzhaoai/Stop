@@ -174,6 +174,12 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 	 */
 	private void getDataFromServer(){
 		
+		// check the network state before doing things..
+		if( !ConnectionUtil.checkNetState(this) ){
+			ToastUtil.showToast(this, "please configure the network");
+			return;
+		}
+		
 		circleProgressBar.setVisibility(View.VISIBLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
 				WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);

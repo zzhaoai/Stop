@@ -35,9 +35,12 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.params.HttpProtocolParams;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Bitmap.CompressFormat;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
@@ -241,4 +244,23 @@ public class ConnectionUtil {
 		}
 		return pictures;
 	}
+	
+	/**
+	 * check the network state
+	 * @param context
+	 * @return
+	 */
+	public static boolean checkNetState(Context context){
+		try{
+		   ConnectivityManager connectivity = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+		   if(connectivity != null){
+			   NetworkInfo info = connectivity.getActiveNetworkInfo();
+			   if(info != null && info.isConnected()){
+				   if(info.getState() == NetworkInfo.State.CONNECTED) return true;
+			   }
+		   }
+		}catch (Exception e){}
+		return false;
+	}
+	
 }
