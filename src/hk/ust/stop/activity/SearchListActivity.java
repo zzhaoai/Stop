@@ -18,11 +18,7 @@ import hk.ust.stop.widget.RefreshableView.PullToRefreshListener;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -38,7 +34,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -179,6 +174,12 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 	 *  get data from server
 	 */
 	private void getDataFromServer(){
+		
+		// check the network state before doing things..
+		if( !ConnectionUtil.checkNetState(this) ){
+			ToastUtil.showToast(this, "please configure the network");
+			return;
+		}
 
 		circleProgressBar.setVisibility(View.VISIBLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
