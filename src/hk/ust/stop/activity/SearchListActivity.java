@@ -128,7 +128,7 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 					List<GoodsInformation> goodsItems = (List<GoodsInformation>) bundle.getSerializable(GOODSINFO_KEY);
 					serverData = goodsItems;
 					initAdapter();
-					ToastUtil.showToast(getApplicationContext(), "get data successfully");
+					ToastUtil.showToast(getApplicationContext(), "Getting Data...");
 					// open Thread to download picture in background
 					getPicFromServer();
 					break;

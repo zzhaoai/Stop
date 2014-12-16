@@ -35,7 +35,8 @@
 	        android:gravity="center"
 	        android:text="@string/deleteAddedGoods"
 	        android:textSize="16sp"
-	        android:onClick="deleteOnClickListener" >
+	        android:onClick="deleteOnClickListener" 
+	        android:background="@drawable/delete_button_selector">
 	    </Button>
 	    
 	    <Button
@@ -46,7 +47,8 @@
 	        android:gravity="center"
 	        android:text="@string/showOnMap"
 	        android:textSize="16sp"
-	        android:onClick="showOnMapOnClickListener" >
+	        android:onClick="showOnMapOnClickListener" 
+	        android:background="@drawable/save_button_selector">
 	    </Button>
 	    
     </LinearLayout>

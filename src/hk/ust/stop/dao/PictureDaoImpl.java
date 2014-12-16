@@ -20,6 +20,7 @@ public class PictureDaoImpl {
 	
 	private String appBaseDir;
 	private static PictureDaoImpl dao = null;
+	private final static String PICTURE_FORMAT = ".jpg";
 	
 	/**
 	 * Use this method to get an instance of this class
@@ -96,7 +97,7 @@ public class PictureDaoImpl {
 		if(bmp == null)
 			return;
 
-		File file = new File(getDirectory()+fileName+".jpg");
+		File file = new File(getDirectory()+fileName+PICTURE_FORMAT);
 		
 		try {
 			// If the file already exist, then delete it and save the new picture.
@@ -122,7 +123,7 @@ public class PictureDaoImpl {
 	public ArrayList<Bitmap> getImageFromSdCard(ArrayList<String> names) {
 		ArrayList<Bitmap> pictures = new ArrayList<Bitmap>();
 		for(int index = 0; index < names.size(); index++) {
-			String path = getDirectory() + names.get(index);
+			String path = getDirectory() + names.get(index) + PICTURE_FORMAT;
 			File file = new File(path);
 			if(file.exists())
 				pictures.add(BitmapFactory.decodeFile(path));
@@ -136,7 +137,7 @@ public class PictureDaoImpl {
 	
 	
 	public boolean deleteBitmap(String fileName) {
-		File file = new File(getDirectory()+fileName+".jpg");
+		File file = new File(getDirectory()+fileName+PICTURE_FORMAT);
 		return file.delete();
 	}
 	

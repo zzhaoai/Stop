@@ -120,7 +120,7 @@ public class FavoriteGoodsListActivity extends ListActivity implements OnItemCli
 					List<GoodsInformation> goodsItems = (List<GoodsInformation>) bundle.getSerializable(GOODSINFO_KEY);
 					localData = goodsItems;
 					initAdapter();
-					ToastUtil.showToast(getApplicationContext(), "get data successfully");
+					ToastUtil.showToast(getApplicationContext(), "get data from SQLite");
 					break;
 				case 2:
 					// get data unsuccessfully

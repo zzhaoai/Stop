@@ -62,12 +62,14 @@
             android:id="@+id/button_login"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="@string/string_login_button"/>
+            android:text="@string/string_login_button"
+            android:background="@drawable/save_button_selector"/>
         
         <Button 
             android:id="@+id/button_register"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="@string/string_register_button"/>
+            android:text="@string/string_register_button"
+            android:background="@drawable/save_button_selector"/>
     </LinearLayout>
 </RelativeLayout>

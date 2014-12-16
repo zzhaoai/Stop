@@ -33,14 +33,16 @@
         android:id="@+id/captureButton"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/take_picture" />
+        android:text="@string/take_picture" 
+        android:background="@drawable/save_button_selector"/>
 	
 	<!-- Delete picture button -->
 	<Button 
         android:id="@+id/deleteButton"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/delete" />
+        android:text="@string/delete"
+        android:background="@drawable/delete_button_selector" />
 	
 	<EditText
 	    android:id="@+id/productName"
@@ -79,14 +81,16 @@
 	        android:layout_weight="1"
 	        android:layout_width="0dp"
 	        android:layout_height="wrap_content"
-	        android:text="@string/string_reset" />
+	        android:text="@string/string_reset"
+	        android:background="@drawable/delete_button_selector" />
 	    
 	    <Button
 	        android:id="@+id/saveButton"
 	        android:layout_weight="1"
 	        android:layout_width="0dp"
 	        android:layout_height="wrap_content"
-	        android:text="@string/string_save" />
+	        android:text="@string/string_save" 
+	        android:background="@drawable/save_button_selector" />
 	    
 	</LinearLayout>
 	
