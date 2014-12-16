@@ -41,6 +41,7 @@
 	        android:layout_height="40dp"
 	        android:gravity="center"
 	        android:text="@string/save"
+	        android:background="@drawable/save_button_selector"
 	        android:textSize="16sp"
 	        android:onClick="saveListOnClickListener" >
 	    </Button>
@@ -52,6 +53,7 @@
 	        android:layout_marginLeft="30dp"
 	        android:gravity="center"
 	        android:text="@string/showOnMap"
+	        android:background="@drawable/delete_button_selector"
 	        android:textSize="16sp"
 	        android:onClick="showOnMapOnClickListener" >
 	    </Button>
