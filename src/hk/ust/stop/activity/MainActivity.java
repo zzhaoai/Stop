@@ -54,8 +54,8 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
 public class MainActivity extends Activity 
-				implements LocationListener, OnClickListener,
-				OnQueryTextListener, OnItemClickListener {
+implements LocationListener, OnClickListener,
+OnQueryTextListener, OnItemClickListener {
 
 	// Instance to do operations on the Map
 	GoogleMap googleMap;
@@ -63,14 +63,14 @@ public class MainActivity extends Activity
 	SearchView searchView;
 	PopupWindow popupWindow;
 	boolean isMenuPressToShow = false;
-	
+	LatLng location_old;
 	List<LatLng> pointsList;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		
+
 		pointsList = new ArrayList<LatLng>();
-		
+
 		Intent intent = getIntent();
 		//boolean isLogin = intent.getBooleanExtra("isLogin", false);
 
@@ -81,7 +81,7 @@ public class MainActivity extends Activity
 		initPopupWindow(isLogin);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-	
+
 		// setup location manager to perform location related operations
 		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
@@ -90,66 +90,66 @@ public class MainActivity extends Activity
 
 		// To get map from MapFragment from layout
 		googleMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-		
+
 		// To show our current location in the map with dot
 		googleMap.setMyLocationEnabled(true);
-		
+
 		// set map type
 		googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-		
+
 		//insert a record to the database
 		ContentResolver resolver = getContentResolver();
 		BaseDaoInterface dao = new BaseDaoImpl(resolver);
 		GoodsInformation goods = new GoodsInformation(1,"pic",89.1,26.3,45.5,"book","ust library","worth to read");
 		dao.insert(null,goods,1);
-		
+
 		// To listen action whenever we click on the map
 		googleMap.setOnMapClickListener(new OnMapClickListener() {
 
 			@Override
 			public void onMapClick(LatLng arg0) {
-				
+
 				ContentResolver resolver = getContentResolver();
 				BaseDaoInterface dao = new BaseDaoImpl(resolver);
 				ArrayList<GoodsInformation> list = dao.queryAllRecord(null,1);
 				if(list != null && list.size() != 0) {
 					Toast.makeText(MainActivity.this, list.get(0).getGoodsAddress(), Toast.LENGTH_LONG).show();
 				}
-				
+
 			}
 		});
 	}
-	
+
 	private void initActionBar() {
 		ActionBar actionBar = getActionBar();
 		actionBar.setCustomView(R.layout.actionbar_with_searchview_layout);
 		actionBar.setDisplayShowCustomEnabled(true);
 		actionBar.setDisplayShowHomeEnabled(false);
 		actionBar.setTitle("");
-		
+
 		searchView = (SearchView)findViewById(R.id.actionbar_searchview);
 		searchView.setOnQueryTextListener(this);
 		overflowButton = (ImageView) findViewById(R.id.iv_overflow);
 		overflowButton.setOnClickListener(this);
 	}
-	
+
 	private void initPopupWindow(boolean isLogin) {
 		View contentView = LayoutInflater.from(this).inflate(
 				R.layout.popup_menu_layout, null);
-		
+
 		ArrayList<HashMap<String, Object>> menuList = new ArrayList<HashMap<String, Object>>(); 
 		HashMap<String, Object> map1 = new HashMap<String, Object>();
 		map1.put("menu_list_image", R.drawable.ic_action_search);
 		map1.put("menu_list_text", "MyFavorite");
-		
+
 		HashMap<String, Object> map2 = new HashMap<String, Object>();
 		map2.put("menu_list_image", R.drawable.ic_action_overflow);
 		map2.put("menu_list_text", "Upload!");
-		
+
 		HashMap<String, Object> map3 = new HashMap<String, Object>();
 		map3.put("menu_list_image", R.drawable.ic_action_search);
 		map3.put("menu_list_text", "MyUploaded");
-		
+
 		HashMap<String, Object> map4 = new HashMap<String, Object>();
 		map4.put("menu_list_image", R.drawable.ic_action_overflow);
 		if(isLogin) {
@@ -161,16 +161,16 @@ public class MainActivity extends Activity
 		menuList.add(map2);
 		menuList.add(map3);
 		menuList.add(map4);
-		
+
 		SimpleAdapter adapter = new SimpleAdapter(this, menuList, 
 				R.layout.menu_listview_layout, 
 				new String[]{"menu_list_image", "menu_list_text"}, 
 				new int[]{R.id.menu_list_image, R.id.menu_list_text});
-		
+
 		ListView listView = (ListView)contentView.findViewById(R.id.menu_listview);
 		listView.setAdapter(adapter);
 		listView.setOnKeyListener(new ListView.OnKeyListener() {
-			
+
 			@Override
 			public boolean onKey(View v, int keyCode, KeyEvent event) {
 				if(event.getKeyCode() == KeyEvent.KEYCODE_MENU) {
@@ -186,110 +186,114 @@ public class MainActivity extends Activity
 			}
 		});
 		listView.setOnItemClickListener(this);
-		
+
 		popupWindow = new PopupWindow(contentView,
-                LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true);
+				LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true);
 		popupWindow.setTouchable(true);
 		popupWindow.setBackgroundDrawable(getResources().getDrawable(
-                R.color.wallet_hint_foreground_holo_light));
+				R.color.wallet_hint_foreground_holo_light));
 		popupWindow.setWidth(LayoutParams.WRAP_CONTENT);    
 		popupWindow.setHeight(LayoutParams.WRAP_CONTENT);
 		popupWindow.setOutsideTouchable(true);
-		
+
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		
+
 		return true;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onLocationChanged(Location location) {
-		
-		// To hold latitude and longitude values
-		LatLng position = new LatLng(location.getLatitude(), location.getLongitude());
-		AccountUtil.setCurrentLocation(position);
-
-		// Creating object to pass our current location to the map
-		MarkerOptions markerOptions = new MarkerOptions();
-		// To store current location in the markeroptions object
-		markerOptions.position(position).title("You are here");
-
-		// clear previous marker
-		googleMap.clear();
-		
-		// Zooming to our current location with zoom level 17.0f
-		googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 17f));
-		
-		
-		//test-----------------
-		View mapView = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getView();
-		View btnMyLocation = ((View) mapView.findViewById(1).getParent()).findViewById(2);
-		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(80,80); // size of button in dp
-	    params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
-	    params.addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
-	    params.setMargins(0, 0, 20, 0);
-	    btnMyLocation.setLayoutParams(params);
-
-		// show our current location in the map with help of default marker
-		googleMap.addMarker(markerOptions);
-		List<LatLng> allPoints = new ArrayList<LatLng>();
-		allPoints.add(position);
 		try{
-			File file = new File(Environment.getExternalStorageDirectory() + File.separator + "test.txt");
-			file.canRead();
-			if(file.exists())
-			{
-				
-				FileInputStream fis = new FileInputStream(file);
-				 
-				//Construct BufferedReader from InputStreamReader
-				BufferedReader br = new BufferedReader(new InputStreamReader(fis));
-			 
-				String line = null;
-				while ((line = br.readLine()) != null) {
-					System.out.println(line);
-					String[] parts = line.split(",");
-					allPoints.add(new LatLng(Float.parseFloat(parts[0]), Float.parseFloat(parts[1])));
+			// To hold latitude and longitude values
+			LatLng position = new LatLng(location.getLatitude(), location.getLongitude());
+			AccountUtil.setCurrentLocation(position);
+
+			// Creating object to pass our current location to the map
+			MarkerOptions markerOptions = new MarkerOptions();
+			// To store current location in the markeroptions object
+			markerOptions.position(position).title("You are here");
+
+			// clear previous marker
+			googleMap.clear();
+
+			// Zooming to our current location with zoom level 17.0f
+			googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 17f));
+
+
+			//test-----------------
+			View mapView = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getView();
+			View btnMyLocation = ((View) mapView.findViewById(1).getParent()).findViewById(2);
+			RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(80,80); // size of button in dp
+			params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
+			params.addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
+			params.setMargins(0, 0, 20, 0);
+			btnMyLocation.setLayoutParams(params);
+
+			// show our current location in the map with help of default marker
+			googleMap.addMarker(markerOptions);
+			List<LatLng> allPoints = new ArrayList<LatLng>();
+			allPoints.add(position);
+			try{
+				File file = new File(Environment.getExternalStorageDirectory() + File.separator + "test.txt");
+				file.canRead();
+				if(file.exists())
+				{
+
+					FileInputStream fis = new FileInputStream(file);
+
+					//Construct BufferedReader from InputStreamReader
+					BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+
+					String line = null;
+					while ((line = br.readLine()) != null) {
+						String[] parts = line.split(",");
+						allPoints.add(new LatLng(Float.parseFloat(parts[0]), Float.parseFloat(parts[1])));
+					}
+
+					br.close();
+
 				}
-			 
-				br.close();
-				
 			}
+			catch(Exception e)
+			{
+				allPoints = null;
+			}
+
+			if(allPoints != null && !allPoints.isEmpty() && location_old != position){
+				PolylineOptions lineOptions = new PolylineOptions().addAll(allPoints);
+				lineOptions.width(5).color(Color.BLUE);
+				Polyline polyline = googleMap.addPolyline(lineOptions);
+				//new RouteTask().execute(pointsList,null,null);
+
+			}
+			location_old = position;
 		}
 		catch(Exception e)
 		{
-			allPoints = null;
+
 		}
-		
-		if(allPoints != null && !allPoints.isEmpty()){
-	        PolylineOptions lineOptions = new PolylineOptions().addAll(allPoints);
-			lineOptions.width(5).color(Color.BLUE);
-			Polyline polyline = googleMap.addPolyline(lineOptions);
-	        //new RouteTask().execute(pointsList,null,null);
-	      			
-		}
-		
 	}
 
 	@Override
 	public void onStatusChanged(String provider, int status, Bundle extras) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onProviderEnabled(String provider) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onProviderDisabled(String provider) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -319,7 +323,7 @@ public class MainActivity extends Activity
 		// TODO Auto-generated method stub
 		return false;
 	}
-	
+
 	private void togglePopupWindow() {
 		if(!popupWindow.isShowing()) {
 			int x = popupWindow.getWidth();
@@ -327,8 +331,8 @@ public class MainActivity extends Activity
 		} else {
 			popupWindow.dismiss();
 		}
-		
-		
+
+
 	}
 
 	@Override
@@ -396,14 +400,14 @@ public class MainActivity extends Activity
 		default:
 			break;
 		}
-		
+
 	}
-	
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		// get goods positions from server
 		//Bundle extras = data.getExtras();
 		//pointsList = (List<LatLng>) extras.getParcelable("points");
 	}
-	
+
 }
