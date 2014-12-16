@@ -528,7 +528,7 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 
 		
 
-
+		ToastUtil.showToast(getApplicationContext(), "Fetching Data ...");
 		Intent intent = new Intent(this, MainActivity.class);
 		//intent.putExtras(bundle);
 		SearchListActivity.this.setResult(RESULT_OK, intent);

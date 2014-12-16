@@ -115,6 +115,7 @@ public class FavoriteGoodsListActivity extends ListActivity implements OnItemCli
 		refreshableView.setOnLoadListener(new MyPullToLoadMoreListener());
 
 	}
+	
 
 	/**
 	 * initial Handler, set data, and initial adapter
@@ -487,19 +488,20 @@ public class FavoriteGoodsListActivity extends ListActivity implements OnItemCli
 	 * @param view
 	 */
 	public void showOnMapOnClickListener(View view){
+		
+		String nums = setSelectedData();
 		// upload selected items to server and get optimized route
 		List<LatLng> locationPoints = new ArrayList<LatLng>();
 		Iterator<GoodsInformation> iterator = selectedData.iterator();
-		ToastUtil.showToast(getApplicationContext(), ""+selectedData);
 		while(iterator.hasNext()){
 			GoodsInformation goodsItem = iterator.next();
-			ToastUtil.showToast(getApplicationContext(), ""+goodsItem.getLongitude());
 			LatLng point = new LatLng(goodsItem.getLongitude(),goodsItem.getLatitude());
 			locationPoints.add(point);
 		}
 
 		getRouteFromServer(locationPoints);
-		
+
+		ToastUtil.showToast(getApplicationContext(), "Fetching Data ...");
 		Intent intent = new Intent(this, MainActivity.class);
 		//intent.putExtras(bundle);
 		FavoriteGoodsListActivity.this.setResult(RESULT_OK, intent);
