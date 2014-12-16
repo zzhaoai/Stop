@@ -58,8 +58,9 @@ public class MainActivity extends Activity
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Intent intent = getIntent();
-		boolean isLogin = intent.getBooleanExtra("isLogin", false);
+		//Intent intent = getIntent();
+		//boolean isLogin = intent.getBooleanExtra("isLogin", false);
+		boolean isLogin = AccountUtil.isLogin();
 		initActionBar();
 		initPopupWindow(isLogin);
 		super.onCreate(savedInstanceState);
@@ -341,7 +342,7 @@ public class MainActivity extends Activity
 			if(AccountUtil.isLogin()) {
 				// If the user has login, then logout.
 				AccountUtil.logoutUser();
-				getIntent().putExtra("isLogin", false);
+				//getIntent().putExtra("isLogin", false);
 				popupWindow.dismiss();
 				initPopupWindow(false);
 			} else {
