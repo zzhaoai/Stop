@@ -125,7 +125,7 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 					List<GoodsInformation> goodsItems = (List<GoodsInformation>) bundle.getSerializable(GOODSINFO_KEY);
 					serverData = goodsItems;
 					initAdapter();
-					ToastUtil.showToast(getApplicationContext(), "get data successfully");
+					//ToastUtil.showToast(getApplicationContext(), "get data successfully");
 					// open Thread to download picture in background
 					getPicFromServer();
 					break;
@@ -483,7 +483,7 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 		deleteDataOnServer(nums);
 		
 		// test
-		ToastUtil.showToast(this, nums);
+		//ToastUtil.showToast(this, nums);
 		
 	}
 	
@@ -506,14 +506,14 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 	public void onCheckboxClicked(View view){
 
 		if(checkBox.isChecked()){
-			ToastUtil.showToast(this, checkBox.isChecked()+"");
+			//ToastUtil.showToast(this, checkBox.isChecked()+"");
 			for(GoodsInformation singleData : adapterData){
 				singleData.setSelected(true);
 			}
 			adapter.setFullChecked(true);
 			adapter.notifyDataSetChanged();
 		}else{
-			ToastUtil.showToast(this, checkBox.isChecked()+"");
+			//ToastUtil.showToast(this, checkBox.isChecked()+"");
 			for(GoodsInformation singleData : adapterData){
 				singleData.setSelected(false);
 			}

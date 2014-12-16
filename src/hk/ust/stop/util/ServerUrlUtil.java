@@ -1,5 +1,9 @@
 package hk.ust.stop.util;
 
+import java.util.List;
+
+import com.google.android.gms.maps.model.LatLng;
+
 import hk.ust.stop.model.GoodsInformation;
 
 /**
@@ -20,7 +24,7 @@ public class ServerUrlUtil {
 	 * @return
 	 */
 	public static String LoginUrl(String name, String password) {
-		return SERVER_BASE + "login/" + name + "/" + password;
+		return SERVER_BASE + "login/" + name + "/" + password + "/";
 	}
 	
 	
@@ -30,7 +34,7 @@ public class ServerUrlUtil {
 	 * @return
 	 */
 	public static String ProductByIdUrl(long productId) {
-		return SERVER_BASE + "product/" + productId;
+		return SERVER_BASE + "product/" + productId + "/";
 	}
 	
 	
@@ -45,7 +49,7 @@ public class ServerUrlUtil {
 	public static String AddUserUrl(String name, String password,
 								String email, String phone) {
 		return SERVER_BASE + "register/" + name + "/" + email
-				+ "/" + phone + "/" + password;
+				+ "/" + phone + "/" + password + "/";
 	}
 	
 	
@@ -63,7 +67,8 @@ public class ServerUrlUtil {
 				goods.getGoodsName() + "/" +
 				goods.getGoodsDescription() + "/" +
 				goods.getGoodsAddress() + "/" +
-				(null == AccountUtil.getLoginUser()?"0":AccountUtil.getLoginUser().getUserId());
+				(null == AccountUtil.getLoginUser()?"0":AccountUtil.getLoginUser().getUserId())
+				 + "/";
 	}
 	
 	
@@ -73,7 +78,7 @@ public class ServerUrlUtil {
 	 * @return
 	 */
 	public static String SearchProductUrl(String productName) {
-		return SERVER_BASE + "search/" + productName;
+		return SERVER_BASE + "search/" + productName + "/";
 	}
 	
 	/**
@@ -82,7 +87,7 @@ public class ServerUrlUtil {
 	 * @return
 	 */
 	public static String GetProductByUserId(Long userId){
-		return SERVER_BASE + "get/" + userId;
+		return SERVER_BASE + "get/" + userId + "/";
 	}
 	
 	
@@ -92,7 +97,7 @@ public class ServerUrlUtil {
 	 * @return The text in the picture, normally, it's the name of the product.
 	 */
 	public static String analysePictureUrl(String filename) {
-		return SERVER_BASE + "convert/" + filename + ".jpg";
+		return SERVER_BASE + "convert/" + filename + ".jpg" + "/";
 	}
 	
 	/**
@@ -100,7 +105,7 @@ public class ServerUrlUtil {
 	 * @param filename
 	 */
 	public static String downloadPictureUrl(String filename) {
-		return SERVER_BASE + "uploads/" + filename + ".jpg";
+		return SERVER_BASE + "uploads/" + filename + ".jpg" + "/";
 	}
 	
 	/**
@@ -109,7 +114,38 @@ public class ServerUrlUtil {
 	 * @return
 	 */
 	public static String deleteProductUrl(String goodsIdList){
-		return SERVER_BASE + "delete/" + goodsIdList;
+		return SERVER_BASE + "delete/" + goodsIdList + "/";
+	}
+	
+	/**
+	 * Url for getting the optimized route from server
+	 * parameter format: "start-point;end-point;mediate points" (in order)
+	 * @param points
+	 * @return
+	 */
+	public static String getRouteUrl(List<LatLng> points){
+		String returnUrl = SERVER_BASE + "getpath/";
+		for(LatLng point : points){
+			String pointX = point.latitude+",";
+			String pointY = point.longitude+";";
+			returnUrl += (pointX + pointY);
+		}
+		returnUrl = returnUrl.substring(0, returnUrl.length()-1);
+		return returnUrl + "/";
+	}
+	
+	/**
+	 * Url for getting the optimized route from server
+	 * parameter format: "start-address-name;end-address-name;mediate-address-name" (in order)
+	 * @param points
+	 * @return
+	 */
+	public static String getRouteUrlByName(List<String> pointsName){
+		String returnUrl = SERVER_BASE + "getpath/";
+		for(String pointName : pointsName){
+			returnUrl += (pointName + ";");
+		}
+		return returnUrl + "/";
 	}
 	
 }

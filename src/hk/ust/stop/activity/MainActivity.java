@@ -8,6 +8,7 @@ import hk.ust.stop.util.ToastUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import android.app.ActionBar;
@@ -31,12 +32,12 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.PopupWindow;
+import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.SearchView.OnQueryTextListener;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.MapFragment;
@@ -56,8 +57,13 @@ public class MainActivity extends Activity
 	PopupWindow popupWindow;
 	boolean isMenuPressToShow = false;
 	
+	List<LatLng> pointsList;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		
+		pointsList = new ArrayList<LatLng>();
+		
 		Intent intent = getIntent();
 		boolean isLogin = intent.getBooleanExtra("isLogin", false);
 		initActionBar();
@@ -75,34 +81,10 @@ public class MainActivity extends Activity
 		googleMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
 		
 		// To show our current location in the map with dot
-		googleMap.setMyLocationEnabled(false);
+		googleMap.setMyLocationEnabled(true);
 		
 		// set map type
 		googleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-		
-		
-		
-		// FOR TEST NOW
-		List<LatLng> pointsList = new ArrayList<LatLng>();
-		pointsList.add(new LatLng(37.35, 122.0));
-		pointsList.add(new LatLng(30.45, 110.0));  // North of the previous point, but at the same longitude
-        
-		pointsList.add(new LatLng(30.45, 110.0));
-		pointsList.add(new LatLng(25.45, 100.2));  // Same latitude, and 30km to the west
-        
-		pointsList.add(new LatLng(25.45, 100.2));
-		pointsList.add(new LatLng(22.35, 112.2));  // Same longitude, and 16km to the south
-        
-		pointsList.add(new LatLng(22.35, 112.2));
-		pointsList.add(new LatLng(10.35, 122.0)); // Closes the polyline.
-        PolylineOptions lineOptions = new PolylineOptions().addAll(pointsList);
-		lineOptions.width(5).color(Color.BLUE);
-		Polyline polyline = googleMap.addPolyline(lineOptions);
-        //new RouteTask().execute(pointsList,null,null);
-        
-        
-        
-        
 		
 		//insert a record to the database
 		ContentResolver resolver = getContentResolver();
@@ -227,10 +209,35 @@ public class MainActivity extends Activity
 		googleMap.clear();
 		
 		// Zooming to our current location with zoom level 17.0f
-		googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 17f));
+		//googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 17f));
+		
+		
+		//test-----------------
+		View mapView = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getView();
+		View btnMyLocation = ((View) mapView.findViewById(1).getParent()).findViewById(2);
+		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(80,80); // size of button in dp
+	    params.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, RelativeLayout.TRUE);
+	    params.addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
+	    params.setMargins(0, 0, 20, 0);
+	    btnMyLocation.setLayoutParams(params);
 
 		// show our current location in the map with help of default marker
 		googleMap.addMarker(markerOptions);
+		
+		if(pointsList != null && !pointsList.isEmpty()){
+	
+			List<LatLng> allPoints = new ArrayList<LatLng>();
+			allPoints.add(position);
+			Iterator<LatLng> iterator = pointsList.iterator();
+			while(iterator.hasNext()){
+				allPoints.add(iterator.next());
+			}
+	        PolylineOptions lineOptions = new PolylineOptions().addAll(allPoints);
+			lineOptions.width(5).color(Color.BLUE);
+			Polyline polyline = googleMap.addPolyline(lineOptions);
+	        //new RouteTask().execute(pointsList,null,null);
+	      			
+		}
 		
 	}
 
@@ -269,7 +276,8 @@ public class MainActivity extends Activity
 		Intent intent = new Intent();
 		intent.setClass(MainActivity.this, SearchListActivity.class);
 		intent.putExtra("keyWord", searchView.getQuery()+"");
-		startActivity(intent);
+		// get data from the previous closed activity, 1 is request code
+		startActivityForResult(intent,1);
 		return true;
 	}
 
@@ -356,6 +364,13 @@ public class MainActivity extends Activity
 			break;
 		}
 		
+	}
+	
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		// get goods positions from server
+		Bundle extras = data.getExtras();
+		pointsList = (List<LatLng>) extras.getParcelable("points");
 	}
 	
 }

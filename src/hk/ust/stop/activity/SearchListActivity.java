@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.google.android.gms.maps.model.LatLng;
+
 import android.annotation.SuppressLint;
 import android.app.ListActivity;
 import android.content.Intent;
@@ -28,6 +30,7 @@ import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -55,6 +58,7 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 	// max records shown on one page
 	private int batchSize = 10;
 	
+	private List<LatLng> goodsPoints;
 	private List<Bitmap> goodsPics;
 	private List<GoodsInformation> selectedData;
 	private List<GoodsInformation> serverData;
@@ -69,6 +73,7 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
 
+		goodsPoints = new ArrayList<LatLng>();
 		goodsPics = new ArrayList<Bitmap>();
 		serverData = new ArrayList<GoodsInformation>();
 		adapterData = new ArrayList<GoodsInformation>();
@@ -132,7 +137,7 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 					List<GoodsInformation> goodsItems = (List<GoodsInformation>) bundle.getSerializable(GOODSINFO_KEY);
 					serverData = goodsItems;
 					initAdapter();
-					ToastUtil.showToast(getApplicationContext(), "Getting Data...");
+					//ToastUtil.showToast(getApplicationContext(), "Getting Data...");
 					// open Thread to download picture in background
 					getPicFromServer();
 					break;
@@ -143,7 +148,7 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 				case 3:
 					// download pics successfully
 					goodsPics = (List<Bitmap>) bundle.getSerializable(GOODSPICS_KEY);
-					ToastUtil.showToast(SearchListActivity.this, "finish!!");
+					//ToastUtil.showToast(SearchListActivity.this, "finish!!");
 					
 					circleProgressBar.setVisibility(View.GONE);
 					// clear the state of forbidding touch event
@@ -222,6 +227,22 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 					message.what = 3;
 					handler.sendMessage(message);
 					
+				}
+		}).start();
+		
+	}
+	
+	/**
+	 *  get route from server
+	 */
+	private void getRouteFromServer(final List<LatLng> points){
+		
+		 new Thread(new Runnable() {
+				@Override
+				public void run() {
+					String staticUrl = ServerUrlUtil.getRouteUrl(points);
+					String responseData = ConnectionUtil.getFromServer(staticUrl);
+					goodsPoints = JsonUtil.transfer2RoutePointsList(responseData);
 				}
 		}).start();
 		
@@ -454,7 +475,7 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 		PictureDaoImpl.getInstance().cachePictureToSdCard(goodsPics, names);
 		
 		// test
-		ToastUtil.showToast(this, nums);
+		//ToastUtil.showToast(this, nums);
 		
 	}
 	
@@ -465,15 +486,23 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 	public void showOnMapOnClickListener(View view){
 		
 		// upload selected items to server and get optimized route
-		String nums = setSelectedData();
+		List<LatLng> locationPoints = new ArrayList<LatLng>();
+		Iterator<GoodsInformation> iterator = selectedData.iterator();
+		while(iterator.hasNext()){
+			GoodsInformation goodsItem = iterator.next();
+			LatLng point = new LatLng(goodsItem.getLongitude(),goodsItem.getLatitude());
+			locationPoints.add(point);
+		}
 		
-		// test
-		ToastUtil.showToast(this, nums);
+		getRouteFromServer(locationPoints);
 		
-
 		// jump to MainActivity with optimized route
+		Bundle bundle = new Bundle();
+		bundle.putParcelable("points", (Parcelable) goodsPoints);
 		Intent intent = new Intent(this, MainActivity.class);
-		startActivity(intent);
+		intent.putExtras(bundle);
+		SearchListActivity.this.setResult(RESULT_OK, intent);
+		SearchListActivity.this.finish();
 		
 	}
 	
@@ -484,14 +513,14 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 	public void onCheckboxClicked(View view){
 
 		if(checkBox.isChecked()){
-			ToastUtil.showToast(this, checkBox.isChecked()+"");
+			//ToastUtil.showToast(this, checkBox.isChecked()+"");
 			for(GoodsInformation singleData : adapterData){
 				singleData.setSelected(true);
 			}
 			adapter.setFullChecked(true);
 			adapter.notifyDataSetChanged();
 		}else{
-			ToastUtil.showToast(this, checkBox.isChecked()+"");
+			//ToastUtil.showToast(this, checkBox.isChecked()+"");
 			for(GoodsInformation singleData : adapterData){
 				singleData.setSelected(false);
 			}

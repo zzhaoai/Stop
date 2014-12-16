@@ -13,9 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.google.android.gms.internal.in;
-
-import android.R.integer;
+import com.google.android.gms.maps.model.LatLng;
 
 public class JsonUtil {
 
@@ -79,6 +77,11 @@ public class JsonUtil {
 		return null;
 	}
 	
+	/**
+	 * transfer goodsInformation from jsonArray into list
+	 * @param goodsInformationArray
+	 * @return
+	 */
 	public static List<GoodsInformation> tranfer2GoodsInfoList(String goodsInformationArray){
 		
 		List<GoodsInformation> goodsInformations = new ArrayList<GoodsInformation>();
@@ -105,6 +108,38 @@ public class JsonUtil {
 		}
 		
 		return goodsInformations;
+		
+	}
+	
+	/**
+	 * get list of points from the result in json format
+	 */
+	public static List<LatLng> transfer2RoutePointsList(String routeInfo){
+		
+		List<LatLng> points = new ArrayList<LatLng>();
+		
+		try {
+			JSONObject jsonObject = new JSONObject(routeInfo);
+			int length = (Integer) jsonObject.get("length");
+			
+			JSONObject jo = (JSONObject) jsonObject.get(1+"");
+			JSONObject position = (JSONObject) jo.get("start_location");
+			LatLng startPoint = new LatLng(Float.parseFloat(position.getString("lat")), 
+					Float.parseFloat(position.getString("lng")));
+			points.add(startPoint);
+			for(int i=1;i<=length;i++){
+				jo = (JSONObject) jsonObject.get(i+"");
+				position = (JSONObject) jo.get("end_location");
+				LatLng endPoint = new LatLng(Float.parseFloat(position.getString("lat")), 
+						Float.parseFloat(position.getString("lng")));
+				points.add(endPoint);
+			}
+			
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		
+		return points;
 		
 	}
 	
