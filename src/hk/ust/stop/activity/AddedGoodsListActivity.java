@@ -28,9 +28,11 @@ import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class AddedGoodsListActivity extends ListActivity implements OnItemClickListener{
@@ -40,6 +42,7 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 
 	private View header;
 	private CheckBox checkBox;
+	private ProgressBar circleProgressBar;
 	
 	private Handler handler;
 	private Thread currentThread;
@@ -90,6 +93,7 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 		LayoutInflater inflater = getLayoutInflater();
 		header = (View)inflater.inflate(R.layout.common_list_header, listView, false);
 		checkBox = (CheckBox) header.findViewById(R.id.fullSelect);
+		circleProgressBar = (ProgressBar) findViewById(R.id.circleProgressbar);
 		
 	}
 	
@@ -146,6 +150,11 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 				case 5:
 					// download pics successfully
 					goodsPics = (List<Bitmap>) bundle.getSerializable(GOODSPICS_KEY);
+					
+					circleProgressBar.setVisibility(View.GONE);
+					// clear the state of forbidding touch event
+					getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+					
 					break;
 				case 6:
 					// download pics unsuccessfully
@@ -164,6 +173,10 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 	 *  get data from server
 	 */
 	private void getDataFromServer(){
+		
+		circleProgressBar.setVisibility(View.VISIBLE);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+				WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
 		
 		 new Thread(new Runnable() {
 				@Override
@@ -243,7 +256,7 @@ public class AddedGoodsListActivity extends ListActivity implements OnItemClickL
 					}
 					goodsIdList = goodsIdList.substring(0, goodsIdList.length()-1);
 					String staticUrl = ServerUrlUtil.deleteProductUrl(goodsIdList);
-					String responseData = ConnectionUtil.getFromServer(staticUrl);
+					ConnectionUtil.getFromServer(staticUrl);
 										
 					String[] temp = nums.split(" ");
 					int[] deleteNums = new int[temp.length]; 

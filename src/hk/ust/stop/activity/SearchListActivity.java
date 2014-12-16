@@ -31,10 +31,12 @@ import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ProgressBar;
 
 public class SearchListActivity extends ListActivity implements OnItemClickListener{
 
@@ -43,6 +45,7 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 
 	private View header;
 	private CheckBox checkBox;
+	private ProgressBar circleProgressBar;
 	
 	private Handler handler;
 	private Thread currentThread;
@@ -97,6 +100,7 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 		LayoutInflater inflater = getLayoutInflater();
 		header = (View)inflater.inflate(R.layout.common_list_header, listView, false);
 		checkBox = (CheckBox) header.findViewById(R.id.fullSelect);
+		circleProgressBar = (ProgressBar) findViewById(R.id.circleProgressbar);
 		
 	}
 	
@@ -140,6 +144,11 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 					// download pics successfully
 					goodsPics = (List<Bitmap>) bundle.getSerializable(GOODSPICS_KEY);
 					ToastUtil.showToast(SearchListActivity.this, "finish!!");
+					
+					circleProgressBar.setVisibility(View.GONE);
+					// clear the state of forbidding touch event
+					getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+					
 					break;
 				case 4:
 					// download pics unsuccessfully
@@ -158,6 +167,10 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 	 */
 	private void getDataFromServer(){
 		
+		circleProgressBar.setVisibility(View.VISIBLE);
+		getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+				WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
+		
 		 new Thread(new Runnable() {
 				@Override
 				public void run() {
@@ -165,14 +178,6 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 					String staticUrl = ServerUrlUtil.SearchProductUrl(keyWord);
 					String responseData = ConnectionUtil.getFromServer(staticUrl);
 					List<GoodsInformation> goodsItems = JsonUtil.tranfer2GoodsInfoList(responseData);
-					
-					/*List<GoodsInformation> goodsItems = new ArrayList<GoodsInformation>();
-					
-					for (int i = 0; i < 40; i++) {
-						goodsItems.add(new GoodsInformation("name"+i,i));
-					}*/
-					
-						
 
 					Message message=new Message();
 					Bundle bundle = new Bundle();

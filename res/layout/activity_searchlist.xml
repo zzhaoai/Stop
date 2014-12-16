@@ -20,6 +20,13 @@
         
     </hk.ust.stop.widget.RefreshableView>
     
+    <ProgressBar  
+	    android:id="@+id/circleProgressbar"  
+	    android:layout_centerInParent="true"
+	    android:layout_width="40dp"  
+	    android:layout_height="40dp"
+	    android:visibility="gone" />  
+    
     <LinearLayout
         android:id="@+id/bottomView"
         android:layout_width="fill_parent"
