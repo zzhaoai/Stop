@@ -6,6 +6,11 @@ import hk.ust.stop.model.GoodsInformation;
 import hk.ust.stop.util.AccountUtil;
 import hk.ust.stop.util.ToastUtil;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -21,6 +26,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -38,6 +44,7 @@ import android.widget.SearchView.OnQueryTextListener;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.GoogleMap.OnMapClickListener;
 import com.google.android.gms.maps.MapFragment;
@@ -197,6 +204,7 @@ public class MainActivity extends Activity
 		return true;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void onLocationChanged(Location location) {
 		
@@ -213,7 +221,7 @@ public class MainActivity extends Activity
 		googleMap.clear();
 		
 		// Zooming to our current location with zoom level 17.0f
-		//googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 17f));
+		googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position, 17f));
 		
 		
 		//test-----------------
@@ -227,15 +235,36 @@ public class MainActivity extends Activity
 
 		// show our current location in the map with help of default marker
 		googleMap.addMarker(markerOptions);
-		
-		if(pointsList != null && !pointsList.isEmpty()){
-	
-			List<LatLng> allPoints = new ArrayList<LatLng>();
-			allPoints.add(position);
-			Iterator<LatLng> iterator = pointsList.iterator();
-			while(iterator.hasNext()){
-				allPoints.add(iterator.next());
+		List<LatLng> allPoints = new ArrayList<LatLng>();
+		allPoints.add(position);
+		try{
+			File file = new File(Environment.getExternalStorageDirectory() + File.separator + "test.txt");
+			file.canRead();
+			if(file.exists())
+			{
+				
+				FileInputStream fis = new FileInputStream(file);
+				 
+				//Construct BufferedReader from InputStreamReader
+				BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+			 
+				String line = null;
+				while ((line = br.readLine()) != null) {
+					System.out.println(line);
+					String[] parts = line.split(",");
+					allPoints.add(new LatLng(Float.parseFloat(parts[0]), Float.parseFloat(parts[1])));
+				}
+			 
+				br.close();
+				
 			}
+		}
+		catch(Exception e)
+		{
+			allPoints = null;
+		}
+		
+		if(allPoints != null && !allPoints.isEmpty()){
 	        PolylineOptions lineOptions = new PolylineOptions().addAll(allPoints);
 			lineOptions.width(5).color(Color.BLUE);
 			Polyline polyline = googleMap.addPolyline(lineOptions);
@@ -373,8 +402,8 @@ public class MainActivity extends Activity
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		// get goods positions from server
-		Bundle extras = data.getExtras();
-		pointsList = (List<LatLng>) extras.getParcelable("points");
+		//Bundle extras = data.getExtras();
+		//pointsList = (List<LatLng>) extras.getParcelable("points");
 	}
 	
 }

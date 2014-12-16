@@ -15,7 +15,14 @@ import hk.ust.stop.widget.RefreshableView;
 import hk.ust.stop.widget.RefreshableView.PullToLoadMoreListener;
 import hk.ust.stop.widget.RefreshableView.PullToRefreshListener;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -28,6 +35,7 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Parcelable;
@@ -49,15 +57,15 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 	private View header;
 	private CheckBox checkBox;
 	private ProgressBar circleProgressBar;
-	
+
 	private Handler handler;
 	private Thread currentThread;
-	
+
 	// record the first cursor of listView for data, currentNum X times the number of batchSize
 	private int currentNum = 0;
 	// max records shown on one page
 	private int batchSize = 10;
-	
+
 	private List<LatLng> goodsPoints;
 	private List<Bitmap> goodsPics;
 	private List<GoodsInformation> selectedData;
@@ -66,9 +74,9 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 	private RefreshableView refreshableView; // widget view
 	private ListView listView; // sub view 
 	private CommonListAdapter adapter; // controller
-	
+
 	private String keyWord;
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState){
 		super.onCreate(savedInstanceState);
@@ -78,9 +86,9 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 		serverData = new ArrayList<GoodsInformation>();
 		adapterData = new ArrayList<GoodsInformation>();
 		selectedData = new ArrayList<GoodsInformation>();
-		
+
 		keyWord = getIntent().getStringExtra("keyWord");
-		
+
 		// initial GUI
 		initView();
 		// bind events
@@ -89,39 +97,39 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 		initHandler();
 		// get data from server
 		getDataFromServer();
-		
+
 	}
-	
+
 	/**
 	 * initial GUI
 	 */
 	private void initView(){
-		
+
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.activity_searchlist);
 		refreshableView = (RefreshableView) findViewById(R.id.refreshable_view);
 		listView = getListView(); // the way getting listView in ListActivity
-		
+
 		LayoutInflater inflater = getLayoutInflater();
 		header = (View)inflater.inflate(R.layout.common_list_header, listView, false);
 		checkBox = (CheckBox) header.findViewById(R.id.fullSelect);
 		circleProgressBar = (ProgressBar) findViewById(R.id.circleProgressbar);
-		
+
 	}
-	
+
 	/**
 	 * bind events (scroll event and itemClick event)
 	 */
 	private void initEvent(){
-		
+
 		listView.setOnItemClickListener(this);
 		// set pull-down-refresh listener in self-defined widget
 		refreshableView.setOnRefreshListener(new MyPullToRefreshListener(), 1);
 		// set pull-up-load listener in self-defined widget
 		refreshableView.setOnLoadListener(new MyPullToLoadMoreListener());
-		
+
 	}
-	
+
 	/**
 	 * initial Handler, set data, and initial adapter
 	 */
@@ -149,11 +157,11 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 					// download pics successfully
 					goodsPics = (List<Bitmap>) bundle.getSerializable(GOODSPICS_KEY);
 					//ToastUtil.showToast(SearchListActivity.this, "finish!!");
-					
+
 					circleProgressBar.setVisibility(View.GONE);
 					// clear the state of forbidding touch event
 					getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-					
+
 					break;
 				case 4:
 					// download pics unsuccessfully
@@ -166,88 +174,106 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 			}
 		};
 	}
-	
+
 	/**
 	 *  get data from server
 	 */
 	private void getDataFromServer(){
-		
+
 		circleProgressBar.setVisibility(View.VISIBLE);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
 				WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
-		
-		 new Thread(new Runnable() {
-				@Override
-				public void run() {
-					
-					String staticUrl = ServerUrlUtil.SearchProductUrl(keyWord);
-					String responseData = ConnectionUtil.getFromServer(staticUrl);
-					List<GoodsInformation> goodsItems = JsonUtil.tranfer2GoodsInfoList(responseData);
 
-					Message message=new Message();
-					Bundle bundle = new Bundle();
-					bundle.putSerializable(GOODSINFO_KEY, (Serializable) goodsItems);
-					message.setData(bundle);
-					message.what = 1;
-					handler.sendMessage(message);
-					
-				}
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+
+				String staticUrl = ServerUrlUtil.SearchProductUrl(keyWord);
+				String responseData = ConnectionUtil.getFromServer(staticUrl);
+				List<GoodsInformation> goodsItems = JsonUtil.tranfer2GoodsInfoList(responseData);
+
+				Message message=new Message();
+				Bundle bundle = new Bundle();
+				bundle.putSerializable(GOODSINFO_KEY, (Serializable) goodsItems);
+				message.setData(bundle);
+				message.what = 1;
+				handler.sendMessage(message);
+
+			}
 		}).start();
-		
+
 	}
-	
+
 	/**
 	 *  download picture of goods from server
 	 */
 	private void getPicFromServer(){
-		
-		 new Thread(new Runnable() {
-				@Override
-				public void run() {
-					
-					List<String> picUrlList = new ArrayList<String>();
-					Iterator<GoodsInformation> iterator = serverData.iterator();
-					while(iterator.hasNext()){
-						GoodsInformation goodsItem = iterator.next();
-						String singlePicName = goodsItem.getPictureName();
-						String staticUrl = ServerUrlUtil.downloadPictureUrl(singlePicName);
-						picUrlList.add(staticUrl);
-					}
-					ArrayList<Bitmap> goodsPics = null;
-					try {
-						goodsPics = ConnectionUtil.getBitmaps(picUrlList);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
 
-					Message message=new Message();
-					Bundle bundle = new Bundle();
-					bundle.putSerializable(GOODSPICS_KEY, (Serializable) goodsPics);
-					message.setData(bundle);
-					message.what = 3;
-					handler.sendMessage(message);
-					
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+
+				List<String> picUrlList = new ArrayList<String>();
+				Iterator<GoodsInformation> iterator = serverData.iterator();
+				while(iterator.hasNext()){
+					GoodsInformation goodsItem = iterator.next();
+					String singlePicName = goodsItem.getPictureName();
+					String staticUrl = ServerUrlUtil.downloadPictureUrl(singlePicName);
+					picUrlList.add(staticUrl);
 				}
+				ArrayList<Bitmap> goodsPics = null;
+				try {
+					goodsPics = ConnectionUtil.getBitmaps(picUrlList);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+
+				Message message=new Message();
+				Bundle bundle = new Bundle();
+				bundle.putSerializable(GOODSPICS_KEY, (Serializable) goodsPics);
+				message.setData(bundle);
+				message.what = 3;
+				handler.sendMessage(message);
+
+			}
 		}).start();
-		
+
 	}
-	
+
 	/**
 	 *  get route from server
+	 * @return 
 	 */
-	private void getRouteFromServer(final List<LatLng> points){
-		
-		 new Thread(new Runnable() {
-				@Override
-				public void run() {
-					String staticUrl = ServerUrlUtil.getRouteUrl(points);
-					String responseData = ConnectionUtil.getFromServer(staticUrl);
-					goodsPoints = JsonUtil.transfer2RoutePointsList(responseData);
+	private  void getRouteFromServer(final List<LatLng> points){
+
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				String staticUrl = ServerUrlUtil.getRouteUrl(points);
+				String responseData = ConnectionUtil.getFromServer(staticUrl);
+				goodsPoints = JsonUtil.transfer2RoutePointsList(responseData);
+				
+				try{
+					File file = new File(Environment.getExternalStorageDirectory() + File.separator + "test.txt");
+					
+						FileWriter fw = new FileWriter( file );
+						BufferedWriter bw = new BufferedWriter( fw );
+						for(LatLng str: goodsPoints) {
+							String data =  str.latitude+","+str.longitude+"\n";
+							bw.write(data);
+						}
+						bw.close();		     
+					
 				}
+				catch(Exception e )
+				{
+				}
+				
+			}
 		}).start();
-		
+		//return goodsPoints;
 	}
-	
+
 	/**
 	 *  initial adapter
 	 *  first step: get part of data (model)
@@ -255,12 +281,12 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 	 *  third step: set adapter for ListView (view)
 	 */
 	private void initAdapter() {
-	
+
 		if (listView == null)
 			return;
-		
+
 		batchServerData();
-		
+
 		adapter = new CommonListAdapter();
 		adapter.setContext(this);
 		adapter.setData(adapterData);
@@ -271,15 +297,15 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 		// addHeaderView or addFooterView has to be called before setAdapter
 		listView.addHeaderView(header, "header", false);
 		listView.setAdapter(adapter);
-		
-		
+
+
 	}
-	
+
 	/**
 	 *  handle ServerData, set adapterData with serverData of batchSize each time
 	 */
- 	private void batchServerData() {
-		
+	private void batchServerData() {
+
 		if (serverData == null)
 			return;
 
@@ -298,15 +324,15 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 			// result>0 indicates the number of dishes next time is less than batchSize
 			showSize = totalSize - currentNum;
 		}
-		
+
 		for(int i=0;i<showSize;i++){
 			adapterData.add( serverData.get(currentNum+i) );
 		}
-		
+
 		currentNum += showSize;
-		
+
 	}
- 	
+
 	/**
 	 * handle loading event : update data in adapter and UI,
 	 */
@@ -316,10 +342,10 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 			try {
 				// wait for 2000ms : reserve showing time for loading
 				Thread.sleep(2000);
-				
+
 				// handle server data (cut into batches)
 				batchServerData();
-				
+
 				// post request to UI thread to update UI
 				handler.post(new Runnable() {
 					@Override
@@ -337,7 +363,7 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 			}
 		}
 	}
-	
+
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position,	long id) {
 
@@ -349,7 +375,7 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 		intent.setClass(this, GoodsInfoActivity.class);
 		intent.putExtras(bundle);
 		intent.putExtra("SerializableKey", GOODSINFO_KEY);
-		
+
 		// Change the bitmap to byte array.
 		Bitmap bmp = goodsPics.get(position-1);
 		ByteArrayOutputStream baos=new ByteArrayOutputStream();  
@@ -357,9 +383,9 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 		byte [] bitmapByte =baos.toByteArray();  
 		intent.putExtra("bitmap", bitmapByte);
 		startActivity(intent);
-		
+
 	}
-	
+
 	/**
 	 * Interface of pull-down-refresh listener
 	 * accomplish concrete refresh logic here 
@@ -375,7 +401,7 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 				handler.post(new Runnable() {
 					@Override
 					public void run() {
-						
+
 						adapterData.clear();
 						adapterData = new ArrayList<GoodsInformation>();
 						serverData.clear();
@@ -386,7 +412,7 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 						// get data from server again for updating
 						getDataFromServer();
 						adapter.notifyDataSetChanged();
-					    
+
 					}
 				});
 
@@ -398,7 +424,7 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 			}
 		}
 	};
-	
+
 	/**
 	 * Interface of pull-up-load listener
 	 * accomplish concrete loading logic here 
@@ -421,15 +447,15 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 				refreshableView.finishLoading();
 			}
 		}
-		
+
 	}
-	
+
 	/**
 	 * set selectedData according to selected items in adapterData 
 	 * @return number of chosen items
 	 */
 	private String setSelectedData(){
-		
+
 		String chosenNum = "";
 		for(int i=0; i<adapterData.size() ;i++){
 			GoodsInformation singleData = adapterData.get(i);
@@ -440,51 +466,51 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 			}
 		}
 		return chosenNum;
-		
+
 	}
-	
+
 	/**
 	 * bind onClickListener for saveList Button 
 	 * @param view
 	 */
 	public void saveListOnClickListener(View view){
-		
+
 		// save selected items to local database like contentProvider
 		String nums = setSelectedData();
-		
+
 		boolean isLogin = AccountUtil.isLogin();
 		UserInformation currentUser;
-		
+
 		if(isLogin){
 			currentUser = AccountUtil.getLoginUser();
 		}else{
 			currentUser = null;
 		}
-		
+
 		BaseDaoInterface dao = new BaseDaoImpl(getContentResolver());
-		
+
 		// Define the ArrayList to store the name of the picture.
 		ArrayList<String> names = new ArrayList<String>();
-		
+
 		for(GoodsInformation singleGoods : selectedData){
 			// the third parameter is set to 0 in this version
 			dao.insert(currentUser, singleGoods, 0);
 			names.add(singleGoods.getPictureName());
 		}
-		
+
 		PictureDaoImpl.getInstance().cachePictureToSdCard(goodsPics, names);
-		
+
 		// test
 		//ToastUtil.showToast(this, nums);
-		
+
 	}
-	
+
 	/**
 	 * bind onClickListener for showOnMap Button
 	 * @param view
 	 */
 	public void showOnMapOnClickListener(View view){
-		
+
 		// upload selected items to server and get optimized route
 		List<LatLng> locationPoints = new ArrayList<LatLng>();
 		Iterator<GoodsInformation> iterator = selectedData.iterator();
@@ -493,19 +519,22 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 			LatLng point = new LatLng(goodsItem.getLongitude(),goodsItem.getLatitude());
 			locationPoints.add(point);
 		}
-		
+
 		getRouteFromServer(locationPoints);
-		
 		// jump to MainActivity with optimized route
-		Bundle bundle = new Bundle();
-		bundle.putParcelable("points", (Parcelable) goodsPoints);
+		//Bundle bundle = new Bundle();
+		//bundle.putParcelable("points", (Parcelable) goodsPoints);
+
+		
+
+
 		Intent intent = new Intent(this, MainActivity.class);
-		intent.putExtras(bundle);
+		//intent.putExtras(bundle);
 		SearchListActivity.this.setResult(RESULT_OK, intent);
 		SearchListActivity.this.finish();
-		
+
 	}
-	
+
 	/**
 	 * bind onClickListener for checkBox
 	 * set full-checked state
@@ -527,7 +556,7 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 			adapter.setFullChecked(false);
 			adapter.notifyDataSetChanged();
 		}
-		
+
 	}
-	
+
 }
