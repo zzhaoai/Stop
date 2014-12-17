@@ -125,6 +125,7 @@ public class CommonListAdapter extends BaseAdapter {
 		
 		holder.goodsNameTextView.setText(data.get(position).getGoodsName());
 		holder.goodsPriceTextView.setText(data.get(position).getPrice() + "");
+		holder.goodsPlaceTextView.setText(data.get(position).getGoodsAddress());
 		// get state of checkBox in data list
 		holder.goodsSelectCheckBox.setChecked(data.get(position).getSelected());
 		

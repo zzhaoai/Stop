@@ -9,6 +9,9 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -111,7 +114,11 @@ public class ConnectionUtil {
 	public static String getFromServer(String staticUrl) {
 		URL url = null;
 		try {
-			url = new URL(staticUrl);
+			String parts[] = staticUrl.split(":5000/");
+			String encodedUrl = URLEncoder.encode(parts[1]);
+			encodedUrl = "http://demo.engineerinme.com:5000/"+encodedUrl;
+				
+			url = new URL(encodedUrl);
 			HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();// open connection with HttpURLConnection
 			
 			// fix bug of Android due to high version
