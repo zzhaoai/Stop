@@ -527,6 +527,23 @@ public class SearchListActivity extends ListActivity implements OnItemClickListe
 		//bundle.putParcelable("points", (Parcelable) goodsPoints);
 
 		
+		try{
+			File file = new File(Environment.getExternalStorageDirectory() + File.separator + "opt.txt");
+			
+				FileWriter fw = new FileWriter( file );
+				BufferedWriter bw = new BufferedWriter( fw );
+				for(LatLng str: locationPoints) {
+					String data =  str.latitude+","+str.longitude+"\n";
+					bw.write(data);
+				}
+				bw.close();		     
+			
+		}
+		catch(Exception e )
+		{
+		}
+		
+		
 
 		ToastUtil.showToast(getApplicationContext(), "Fetching Data ...");
 		Intent intent = new Intent(this, MainActivity.class);

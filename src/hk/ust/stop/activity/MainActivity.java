@@ -235,6 +235,37 @@ OnQueryTextListener, OnItemClickListener {
 
 			// show our current location in the map with help of default marker
 			googleMap.addMarker(markerOptions);
+			
+			try{
+				File file = new File(Environment.getExternalStorageDirectory() + File.separator + "opt.txt");
+				file.canRead();
+				if(file.exists())
+				{
+
+					FileInputStream fis = new FileInputStream(file);
+
+					//Construct BufferedReader from InputStreamReader
+					BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+
+					String line = null;
+					while ((line = br.readLine()) != null) {
+						String[] parts = line.split(",");
+						MarkerOptions markerOptions1 = new MarkerOptions();
+						markerOptions1.position(new LatLng(Float.parseFloat(parts[0]), Float.parseFloat(parts[1]))).title("Results");
+						googleMap.addMarker(markerOptions1);
+					}
+
+					br.close();
+
+				}
+			}
+			catch(Exception e)
+			{
+			}
+			
+			
+			
+			
 			List<LatLng> allPoints = new ArrayList<LatLng>();
 			allPoints.add(position);
 			try{
@@ -270,6 +301,10 @@ OnQueryTextListener, OnItemClickListener {
 				//new RouteTask().execute(pointsList,null,null);
 
 			}
+//
+//			if (location_old != position)
+//			{ToastUtil.showToast(this, "Path Loaded");}
+			
 			location_old = position;
 		}
 		catch(Exception e)

@@ -498,7 +498,21 @@ public class FavoriteGoodsListActivity extends ListActivity implements OnItemCli
 			LatLng point = new LatLng(goodsItem.getLongitude(),goodsItem.getLatitude());
 			locationPoints.add(point);
 		}
-
+		try{
+			File file = new File(Environment.getExternalStorageDirectory() + File.separator + "opt.txt");
+			
+				FileWriter fw = new FileWriter( file );
+				BufferedWriter bw = new BufferedWriter( fw );
+				for(LatLng str: locationPoints) {
+					String data =  str.latitude+","+str.longitude+"\n";
+					bw.write(data);
+				}
+				bw.close();		     
+			
+		}
+		catch(Exception e )
+		{
+		}
 		getRouteFromServer(locationPoints);
 
 		ToastUtil.showToast(getApplicationContext(), "Fetching Data ...");
