@@ -166,7 +166,7 @@ public class AddGoodsActivity extends Activity implements OnClickListener{
 				tempPicture.delete();
 			Uri uri = Uri.fromFile(tempPicture);
 			intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-			intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 1);
+			intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, 0);
 			startActivityForResult(intent, 1);
 			break;
 		case R.id.deleteButton:

@@ -114,10 +114,13 @@ public class ConnectionUtil {
 	public static String getFromServer(String staticUrl) {
 		URL url = null;
 		try {
+			/*
 			String parts[] = staticUrl.split(":5000/");
 			String encodedUrl = URLEncoder.encode(parts[1]);
 			encodedUrl = "http://demo.engineerinme.com:5000/"+encodedUrl;
-				
+				*/
+			String encodedUrl = staticUrl.replaceAll(" ", "%20");
+			System.out.println(encodedUrl);
 			url = new URL(encodedUrl);
 			HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();// open connection with HttpURLConnection
 			
